@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "gempyre"
+    }
+  },
+  "defaultProject": "gempyre",
+  "cli": {
+    "analytics": "94ae8443-f002-4398-a4aa-266614316977"
+  }
 }
