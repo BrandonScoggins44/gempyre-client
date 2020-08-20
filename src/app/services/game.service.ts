@@ -116,7 +116,7 @@ export class GameService {
 
         let id = i * availableTypes.length + j;                                                                     // dynamic sequential id
         let value = { type: GemType[availableTypes[j]], value: 1 };                                                 // gem value. Each card is worth 1 type of gem
-        this.generateCost(cost, Math.floor(Math.random() * 4) + 1);                                                 // generate cost with random value (1-4) 
+        this.generateCost(cost, Math.floor(Math.random() * 2) + 3);                                                 // generate cost with random value (3-4) 
         let points = Math.floor((Math.random() + .25));                                                             // randomize points (0-1) weighted toward 0
 
         this.t1Cards.push(new Tier1Card({ id, value, cost, points }))                                               // add card to deck
@@ -140,6 +140,9 @@ export class GameService {
       }
     } else {
       let numOfCostTypes = Math.floor(Math.random() * 4) + 1;                                                       // cards should have 1-4 different gem type costs
+      if (numOfCostTypes > value) {                                                                                 // ensure a min value of 1 for each gem type costs
+        numOfCostTypes = value;
+      }
       let numOfTokens = 0;                                                                                          // initialize number of gems used
 
       for (var i = 0; i < numOfCostTypes; i++) {                                                                    // create a cost this many times
