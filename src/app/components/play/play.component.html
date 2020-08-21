@@ -16,9 +16,9 @@
                                 <h4></h4>
                             </div>
                             <div class="row justify-content-around bg-light">
-                                <p class="card-text text-center" *ngFor="let nobleCost of noble.cost">
-                                    {{nobleCost.value}}
-                                    - {{nobleCost.type[0]}}</p>
+                                <h4 class="card-text text-center" [ngStyle]="getCostColor(nobleCost.type[0])"
+                                    *ngFor="let nobleCost of noble.cost">
+                                    {{nobleCost.value}}</h4>
                             </div>
                         </div>
                     </div>
@@ -33,17 +33,17 @@
         <ng-container *ngFor="let t3Card of gameService.getT3Cards(); let i = index">
             <div class="col-sm-2" *ngIf="i < 4">
                 <div class="card bg-success">
-                    <img class="card-img" style="object-fit: cover; height: 15vh;" src="../../../assets/t3gems.png"
-                        alt="t3">
+                    <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
+                        src="../../../assets/t3gems.png" alt="t3">
                     <div class="card-img-overlay">
                         <div class="d-flex flex-column h-100 justify-content-between">
                             <div class="row justify-content-around bg-light">
                                 <h4>{{t3Card.points}}</h4>
-                                <h4>{{t3Card.value.value}} - {{t3Card.value.type[0]}}</h4>
+                                <h4 [ngStyle]="getCostColor(t3Card.value.type[0])">{{t3Card.value.value}}</h4>
                             </div>
                             <div class="row justify-content-around bg-light">
-                                <p class="card-text text-center" *ngFor="let cardCost of t3Card.cost">{{cardCost.value}}
-                                    - {{cardCost.type[0]}}</p>
+                                <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
+                                    *ngFor="let cardCost of t3Card.cost">{{cardCost.value}} </h4>
                             </div>
                         </div>
                     </div>
@@ -58,17 +58,18 @@
         <ng-container *ngFor="let t2Card of gameService.getT2Cards(); let i = index">
             <div class="col-sm-2" *ngIf="i < 4">
                 <div class="card bg-warning">
-                    <img class="card-img" style="object-fit: cover; height: 15vh; background-color: white;"
+                    <img class="card-img"
+                        style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                         src="../../../assets/t2gems.svg" alt="t2">
                     <div class="card-img-overlay">
                         <div class="d-flex flex-column h-100 justify-content-between">
                             <div class="row justify-content-around bg-light">
                                 <h4>{{t2Card.points}}</h4>
-                                <h4>{{t2Card.value.value}} - {{t2Card.value.type[0]}}</h4>
+                                <h4 [ngStyle]="getCostColor(t2Card.value.type[0])">{{t2Card.value.value}}</h4>
                             </div>
                             <div class="row justify-content-around bg-light">
-                                <p class="card-text text-center" *ngFor="let cardCost of t2Card.cost">{{cardCost.value}}
-                                    - {{cardCost.type[0]}}</p>
+                                <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
+                                    *ngFor="let cardCost of t2Card.cost">{{cardCost.value}} </h4>
                             </div>
                         </div>
                     </div>
@@ -83,17 +84,17 @@
         <ng-container *ngFor="let t1Card of gameService.getT1Cards(); let i = index">
             <div class="col-sm-2" *ngIf="i < 4">
                 <div class="card bg-primary">
-                    <img class="card-img" style="object-fit: cover; height: 15vh;" src="../../../assets/t1gem.png"
-                        alt="t1">
+                    <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
+                        src="../../../assets/t1gem.png" alt="t1">
                     <div class="card-img-overlay">
                         <div class="d-flex flex-column h-100 justify-content-between">
                             <div class="row justify-content-around bg-light">
                                 <h4>{{t1Card.points}}</h4>
-                                <h4>{{t1Card.value.value}} - {{t1Card.value.type[0]}}</h4>
+                                <h4 [ngStyle]="getCostColor(t1Card.value.type[0])">{{t1Card.value.value}}</h4>
                             </div>
                             <div class="row justify-content-around bg-light">
-                                <p class="card-text text-center" *ngFor="let cardCost of t1Card.cost">{{cardCost.value}}
-                                    - {{cardCost.type[0]}}</p>
+                                <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
+                                    *ngFor="let cardCost of t1Card.cost">{{cardCost.value}} </h4>
                             </div>
                         </div>
                     </div>
