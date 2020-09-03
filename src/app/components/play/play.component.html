@@ -4,6 +4,7 @@
     </div>
 
     <div *ngIf="gameService.getGameInProgress()">
+
         <div class="row align-items-center">
             <div class="col">
                 <div class="row justify-content-start">
@@ -16,12 +17,17 @@
             </div>
             <div class="col"></div>
         </div>
+
         <br>
-        <div class="row"></div>
+
         <div class="row">
+
             <div class="col-1 bg-light">
                 <div class="row justify-content-around">Player 3</div>
             </div>
+
+            <div class="col-1"></div>
+
             <div class="col">
                 <section class="container" *ngIf="gameService.getNobles() && gameService.getNobles().length > 0">
                     <div class="row justify-content-around" style="height: 15vh;">
@@ -187,11 +193,22 @@
                     </div>
                 </section>
             </div>
+
+            <div class="col-1"></div>
+
+            <div class="col-1 border border-light">
+                <p style="color: white;">gem area</p>
+            </div>
+
+            <div class="col-1"></div>
+
             <div class="col-1 bg-light">
                 <div class="row justify-content-around">Player 4</div>
             </div>
         </div>
+
         <br>
+
         <div class="row align-items-center">
             <div class="col"></div>
             <div class="col bg-light">
