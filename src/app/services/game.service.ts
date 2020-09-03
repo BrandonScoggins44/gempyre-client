@@ -30,7 +30,7 @@ export class GameService {
 
   public buildGame(): void {
     this.generateNobles();
-    
+
     this.t1Deck = []
     this.t2Deck = []
     this.t3Deck = []
@@ -74,7 +74,7 @@ export class GameService {
   }
 
   private generateTierCards(deck: Card[], showing: Card[], muliplier: number, tier: number, costRange: number, costMin: number, pointRange: number, pointMin: number, pointModifier: number): void {
-    console.log('generateTierCards')
+    console.log('generateTierCards', 'tier:', tier)
 
     deck.splice(0)                                                                                                  // clear card array for new game
     showing.splice(0)
@@ -113,11 +113,10 @@ export class GameService {
     this.shuffleCards(deck)                                                                                         // shuffle cards
     this.populateShowing(deck, showing)                                                                             // reveal top 4 cards from pile         
     console.log('Deck:', deck)
+    console.log('Showing:', showing)
   }
 
   public populateShowing(deck: Card[], showing: Card[]): void {
-    console.log('populateShowing')
-
     if (!deck || !showing) {
       console.log('Error in populateShowing')
       return
@@ -129,8 +128,6 @@ export class GameService {
   }
 
   private generateCost(cost: Gem[], value: number, numOfCosts?: number): void {
-    console.log('generateCost')
-
     let availableTypes = Object.keys(GemType)                                                                       // get all gem types from enum
     availableTypes.pop()                                                                                            // remove the last gem type, "GOLD", to genereate cost
 
