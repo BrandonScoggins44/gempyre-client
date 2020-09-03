@@ -6,6 +6,7 @@ import { Tier1Card } from '../classes/tier1-card';
 import { Token } from '../classes/token';
 import { GemType } from '../enums/gem-type.enum';
 import { Gem } from '../interfaces/gem';
+import { Card } from '../interfaces/card';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,15 @@ import { Gem } from '../interfaces/gem';
 export class GameService {
 
   private nobles: Noble[];
-  private t3Cards: Tier3Card[];
-  private t2Cards: Tier2Card[];
-  private t1Cards: Tier1Card[];
+
+  private t3Deck: Tier3Card[];
+  private t2Deck: Tier2Card[];
+  private t1Deck: Tier1Card[];
+
+  private t3Showing: Tier3Card[];
+  private t2Showing: Tier2Card[];
+  private t1Showing: Tier1Card[];
+
   private tokens: Token[];
   private numberOfPlayers: number = 3;
 
@@ -60,7 +67,8 @@ export class GameService {
   private generateT3Cards(): void {
     console.log('generateT3Cards')
 
-    this.t3Cards = []                                                                                               // clear card array for new game
+    this.t3Deck = []                                                                                               // clear card array for new game
+    this.t3Showing = []
 
     let availableTypes = Object.keys(GemType).slice(0, Object.keys(GemType).length - 1)                             // get gem types excluding gold
 
@@ -73,17 +81,19 @@ export class GameService {
         this.generateCost(cost, Math.floor(Math.random() * 6) + 7);                                                 // generate cost with random value (7-12) 
         let points = Math.floor(Math.random() * 2) + 3;                                                             // randomize points (3-4)
 
-        this.t3Cards.push(new Tier3Card({ id, value, cost, points }))                                               // add card to deck
+        this.t3Deck.push(new Tier3Card({ id, value, cost, points }))                                               // add card to deck
       }
     }
-    this.shuffleCards(this.t3Cards)                                                                                 // shuffle cards
-    console.log('t3Cards', this.t3Cards)
+    this.shuffleCards(this.t3Deck)                                                                                 // shuffle cards
+    this.populateShowing(this.t3Deck, this.t3Showing)                                                              // reveal top 4 cards from pile         
+    console.log('t3Deck', this.t3Deck)
   }
 
   private generateT2Cards(): void {
     console.log('generateT2Cards')
 
-    this.t2Cards = []                                                                                               // clear card array for new game
+    this.t2Deck = []                                                                                               // clear card array for new game
+    this.t2Showing = []
 
     let availableTypes = Object.keys(GemType).slice(0, Object.keys(GemType).length - 1)                             // get gem types excluding gold
 
@@ -96,17 +106,19 @@ export class GameService {
         this.generateCost(cost, Math.floor(Math.random() * 4) + 5);                                                 // generate cost with random value (5-8) 
         let points = Math.floor(Math.random() * 2) + 1;                                                             // randomize points (1-2)
 
-        this.t2Cards.push(new Tier2Card({ id, value, cost, points }))                                               // add card to deck
+        this.t2Deck.push(new Tier2Card({ id, value, cost, points }))                                               // add card to deck
       }
     }
-    this.shuffleCards(this.t2Cards)                                                                                 // shuffle cards
-    console.log('t2Cards', this.t2Cards)
+    this.shuffleCards(this.t2Deck)                                                                                 // shuffle cards
+    this.populateShowing(this.t2Deck, this.t2Showing)                                                              // reveal top 4 cards from pile         
+    console.log('t2Deck', this.t2Deck)
   }
 
   private generateT1Cards(): void {
     console.log('generateT1Cards')
 
-    this.t1Cards = []                                                                                               // clear card array for new game
+    this.t1Deck = []                                                                                               // clear card array for new game
+    this.t1Showing = []
 
     let availableTypes = Object.keys(GemType).slice(0, Object.keys(GemType).length - 1)                             // get gem types excluding gold
 
@@ -119,11 +131,25 @@ export class GameService {
         this.generateCost(cost, Math.floor(Math.random() * 2) + 3);                                                 // generate cost with random value (3-4) 
         let points = Math.floor((Math.random() + .25));                                                             // randomize points (0-1) weighted toward 0
 
-        this.t1Cards.push(new Tier1Card({ id, value, cost, points }))                                               // add card to deck
+        this.t1Deck.push(new Tier1Card({ id, value, cost, points }))                                               // add card to deck
       }
     }
-    this.shuffleCards(this.t1Cards)                                                                                 // shuffle cards
-    console.log('t1Cards', this.t1Cards)
+    this.shuffleCards(this.t1Deck)                                                                                 // shuffle cards
+    this.populateShowing(this.t1Deck, this.t1Showing)                                                              // reveal top 4 cards from pile         
+    console.log('t1Deck', this.t1Deck)
+  }
+
+  public populateShowing(deck: Card[], showing: Card[]): void {
+    console.log('populateShowing')
+
+    if (!deck || !showing) {
+      console.log('Error in populateShowing')
+      return
+    }
+
+    while (deck.length > 0 && showing.length < 4) {
+      showing.push(deck.pop())
+    }
   }
 
   private generateCost(cost: Gem[], value: number, numOfCosts?: number): void {
@@ -176,28 +202,52 @@ export class GameService {
     this.nobles = nobles;
   }
 
-  public getT3Cards(): Tier3Card[] {
-    return this.t3Cards;
+  public getT3Deck(): Tier3Card[] {
+    return this.t3Deck;
   }
 
-  public setT3Cards(t3Cards: Tier3Card[]): void {
-    this.t3Cards = t3Cards;
+  public setT3Deck(t3Deck: Tier3Card[]): void {
+    this.t3Deck = t3Deck;
   }
 
-  public getT2Cards(): Tier2Card[] {
-    return this.t2Cards;
+  public getT2Deck(): Tier2Card[] {
+    return this.t2Deck;
   }
 
-  public setT2Cards(t2Cards: Tier2Card[]): void {
-    this.t2Cards = t2Cards;
+  public setT2Deck(t2Deck: Tier2Card[]): void {
+    this.t2Deck = t2Deck;
   }
 
-  public getT1Cards(): Tier1Card[] {
-    return this.t1Cards;
+  public getT1Deck(): Tier1Card[] {
+    return this.t1Deck;
   }
 
-  public setT1Cards(t1Cards: Tier1Card[]): void {
-    this.t1Cards = t1Cards;
+  public setT1Deck(t1Deck: Tier1Card[]): void {
+    this.t1Deck = t1Deck;
+  }
+
+  public getT3Showing(): Tier3Card[] {
+    return this.t3Showing;
+  }
+
+  public setT3Showing(t3Showing: Tier3Card[]): void {
+    this.t3Showing = t3Showing;
+  }
+
+  public getT2Showing(): Tier2Card[] {
+    return this.t2Showing;
+  }
+
+  public setT2Showing(t2Showing: Tier2Card[]): void {
+    this.t2Showing = t2Showing;
+  }
+
+  public getT1Showing(): Tier1Card[] {
+    return this.t1Showing;
+  }
+
+  public setT1Showing(t1Showing: Tier1Card[]): void {
+    this.t1Showing = t1Showing;
   }
 
   public getTokens(): Token[] {
