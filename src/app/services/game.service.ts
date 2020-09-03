@@ -30,9 +30,18 @@ export class GameService {
 
   public buildGame(): void {
     this.generateNobles();
-    this.generateT3Cards();
-    this.generateT2Cards();
-    this.generateT1Cards();
+    
+    this.t1Deck = []
+    this.t2Deck = []
+    this.t3Deck = []
+
+    this.t1Showing = []
+    this.t2Showing = []
+    this.t3Showing = []
+
+    this.generateTierCards(this.t3Deck, this.t3Showing, 2, 3, 6, 7, 2, 3, 0)
+    this.generateTierCards(this.t2Deck, this.t2Showing, 4, 2, 4, 5, 2, 1, 0)
+    this.generateTierCards(this.t1Deck, this.t1Showing, 6, 1, 2, 3, 1, 0, .25)
   }
 
   private generateNobles(): void {
@@ -64,79 +73,46 @@ export class GameService {
     console.log('nobles', this.nobles)
   }
 
-  private generateT3Cards(): void {
-    console.log('generateT3Cards')
+  private generateTierCards(deck: Card[], showing: Card[], muliplier: number, tier: number, costRange: number, costMin: number, pointRange: number, pointMin: number, pointModifier: number): void {
+    console.log('generateTierCards')
 
-    this.t3Deck = []                                                                                               // clear card array for new game
-    this.t3Showing = []
+    deck.splice(0)                                                                                                  // clear card array for new game
+    showing.splice(0)
 
     let availableTypes = Object.keys(GemType).slice(0, Object.keys(GemType).length - 1)                             // get gem types excluding gold
 
-    for (var i = 0; i < 2; i++) {                                                                                   // number of times each gem type should be made
+    for (var i = 0; i < muliplier; i++) {                                                                           // number of times each gem type should be made
       for (var j = 0; j < availableTypes.length; j++) {                                                             // create a card for each gem type
         let cost: Gem[] = [];                                                                                       // clear cost for new card
 
         let id = i * availableTypes.length + j;                                                                     // dynamic sequential id
         let value = { type: GemType[availableTypes[j]], value: 1 };                                                 // gem value. Each card is worth 1 type of gem
-        this.generateCost(cost, Math.floor(Math.random() * 6) + 7);                                                 // generate cost with random value (7-12) 
-        let points = Math.floor(Math.random() * 2) + 3;                                                             // randomize points (3-4)
+        this.generateCost(cost, Math.floor(Math.random() * costRange) + costMin);                                   // generate cost with random value
+        let points = Math.floor((Math.random() + pointModifier) * pointRange) + pointMin;                           // randomize points
 
-        this.t3Deck.push(new Tier3Card({ id, value, cost, points }))                                               // add card to deck
+        switch (tier) {
+          case 3: {
+            deck.push(new Tier3Card({ id, value, cost, points }));
+            break;
+          }
+          case 2: {
+            deck.push(new Tier2Card({ id, value, cost, points }));
+            break;
+          }
+          case 1: {
+            deck.push(new Tier1Card({ id, value, cost, points }));
+            break;
+          }
+          default: {
+            console.log('No matching tier')
+            break;
+          }
+        }
       }
     }
-    this.shuffleCards(this.t3Deck)                                                                                 // shuffle cards
-    this.populateShowing(this.t3Deck, this.t3Showing)                                                              // reveal top 4 cards from pile         
-    console.log('t3Deck', this.t3Deck)
-  }
-
-  private generateT2Cards(): void {
-    console.log('generateT2Cards')
-
-    this.t2Deck = []                                                                                               // clear card array for new game
-    this.t2Showing = []
-
-    let availableTypes = Object.keys(GemType).slice(0, Object.keys(GemType).length - 1)                             // get gem types excluding gold
-
-    for (var i = 0; i < 4; i++) {                                                                                   // number of times each gem type should be made
-      for (var j = 0; j < availableTypes.length; j++) {                                                             // create a card for each gem type
-        let cost: Gem[] = [];                                                                                       // clear cost for new card
-
-        let id = i * availableTypes.length + j;                                                                     // dynamic sequential id
-        let value = { type: GemType[availableTypes[j]], value: 1 };                                                 // gem value. Each card is worth 1 type of gem
-        this.generateCost(cost, Math.floor(Math.random() * 4) + 5);                                                 // generate cost with random value (5-8) 
-        let points = Math.floor(Math.random() * 2) + 1;                                                             // randomize points (1-2)
-
-        this.t2Deck.push(new Tier2Card({ id, value, cost, points }))                                               // add card to deck
-      }
-    }
-    this.shuffleCards(this.t2Deck)                                                                                 // shuffle cards
-    this.populateShowing(this.t2Deck, this.t2Showing)                                                              // reveal top 4 cards from pile         
-    console.log('t2Deck', this.t2Deck)
-  }
-
-  private generateT1Cards(): void {
-    console.log('generateT1Cards')
-
-    this.t1Deck = []                                                                                               // clear card array for new game
-    this.t1Showing = []
-
-    let availableTypes = Object.keys(GemType).slice(0, Object.keys(GemType).length - 1)                             // get gem types excluding gold
-
-    for (var i = 0; i < 6; i++) {                                                                                   // number of times each gem type should be made
-      for (var j = 0; j < availableTypes.length; j++) {                                                             // create a card for each gem type
-        let cost: Gem[] = [];                                                                                       // clear cost for new card
-
-        let id = i * availableTypes.length + j;                                                                     // dynamic sequential id
-        let value = { type: GemType[availableTypes[j]], value: 1 };                                                 // gem value. Each card is worth 1 type of gem
-        this.generateCost(cost, Math.floor(Math.random() * 2) + 3);                                                 // generate cost with random value (3-4) 
-        let points = Math.floor((Math.random() + .25));                                                             // randomize points (0-1) weighted toward 0
-
-        this.t1Deck.push(new Tier1Card({ id, value, cost, points }))                                               // add card to deck
-      }
-    }
-    this.shuffleCards(this.t1Deck)                                                                                 // shuffle cards
-    this.populateShowing(this.t1Deck, this.t1Showing)                                                              // reveal top 4 cards from pile         
-    console.log('t1Deck', this.t1Deck)
+    this.shuffleCards(deck)                                                                                         // shuffle cards
+    this.populateShowing(deck, showing)                                                                             // reveal top 4 cards from pile         
+    console.log('Deck:', deck)
   }
 
   public populateShowing(deck: Card[], showing: Card[]): void {
