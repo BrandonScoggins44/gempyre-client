@@ -26,9 +26,13 @@ export class GameService {
   private tokens: Token[];
   private numberOfPlayers: number = 3;
 
+  private gameInProgress: boolean = false;
+
   constructor() { }
 
   public buildGame(): void {
+    this.setGameInProgress(true)
+
     this.generateNobles();
 
     this.t1Deck = []
@@ -237,5 +241,13 @@ export class GameService {
 
   public setNumberOfPlayers(numberOfPlayers: number): void {
     this.numberOfPlayers = numberOfPlayers;
+  }
+
+  public getGameInProgress(): boolean {
+    return this.gameInProgress;
+  }
+
+  public setGameInProgress(gameInProgress: boolean): void {
+    this.gameInProgress = gameInProgress;
   }
 }

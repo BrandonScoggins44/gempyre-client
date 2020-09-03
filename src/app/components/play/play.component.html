@@ -1,156 +1,193 @@
-<br>
-<button type="button" class="btn btn-light" (click)="gameService.buildGame();">Start New Game</button>
-<br>
-<br>
-<section class="container" *ngIf="gameService.getNobles() && gameService.getNobles().length > 0">
-    <div class="row justify-content-around" style="height: 15vh;">
-        <ng-container *ngFor="let noble of gameService.getNobles()">
-            <div class="col-sm-2">
-                <div class="card bg-dark">
-                    <img class="card-img" style="object-fit: cover; height: 15vh;" src="../../../assets/noble.jpg"
-                        alt="noble">
-                    <div class="card-img-overlay">
-                        <div class="d-flex flex-column h-100 justify-content-between">
-                            <div class="row justify-content-around bg-light">
-                                <h4 class="card-text">{{noble.points}}</h4>
-                                <h4></h4>
-                            </div>
-                            <div class="row justify-content-around bg-light">
-                                <h4 class="card-text text-center" [ngStyle]="getCostColor(nobleCost.type[0])"
-                                    *ngFor="let nobleCost of noble.cost">
-                                    {{nobleCost.value}}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </ng-container>
-    </div>
-</section>
-<br>
-<section class="container" *ngIf="gameService.getT3Deck() && gameService.getT3Showing()">
-    <div class="row justify-content-around" style="height: 15vh;">
-        <div class="col-sm-2">
-            <div class="card bg-success">
-                <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .5;"
-                    src="../../../assets/t3gems.png" alt="t3">
-                <div class="card-img-overlay">
-                    <div class="d-flex flex-column h-100 justify-content-between">
-                        <div class="row justify-content-around bg-light">
-                            <h4>{{gameService.getT3Deck().length}}</h4>
-                        </div>
-                        <div class="row justify-content-around bg-light">
-                            <h4 class="card-text text-center">Tier 3</h4>
-                        </div>
-                    </div>
-                </div>
+<button type="button" class="btn btn-light" (click)="gameService.buildGame();"
+    *ngIf="!gameService.getGameInProgress()">Start New Game</button>
+
+<div *ngIf="gameService.getGameInProgress()">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="row justify-content-start">
+                <button type="button" class="btn btn-light" (click)="gameService.buildGame();">Start New Game</button>
             </div>
         </div>
-        <ng-container *ngFor="let t3Card of gameService.getT3Showing(); let i = index">
-            <div class="col-sm-2" *ngIf="i < 4"
-                (click)="gameService.getT3Showing().pop(); gameService.populateShowing(gameService.getT3Deck(), gameService.getT3Showing())">
-                <div class="card bg-success">
-                    <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
-                        src="../../../assets/t3gems.png" alt="t3">
-                    <div class="card-img-overlay">
-                        <div class="d-flex flex-column h-100 justify-content-between">
-                            <div class="row justify-content-around bg-light">
-                                <h4>{{t3Card.points}}</h4>
-                                <h4 [ngStyle]="getCostColor(t3Card.value.type[0])">{{t3Card.value.value}}</h4>
-                            </div>
-                            <div class="row justify-content-around bg-light">
-                                <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
-                                    *ngFor="let cardCost of t3Card.cost">{{cardCost.value}}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </ng-container>
-    </div>
-</section>
-<br>
-<section class="container" *ngIf="gameService.getT2Deck() && gameService.getT2Showing()">
-    <div class="row justify-content-around" style="height: 15vh;">
-        <div class="col-sm-2">
-            <div class="card bg-warning">
-                <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .5; background-color: white;"
-                    src="../../../assets/t2gems.svg" alt="t2">
-                <div class="card-img-overlay">
-                    <div class="d-flex flex-column h-100 justify-content-between">
-                        <div class="row justify-content-around bg-light">
-                            <h4>{{gameService.getT2Deck().length}}</h4>
-                        </div>
-                        <div class="row justify-content-around bg-light">
-                            <h4 class="card-text text-center">Tier 2</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="col bg-light">
+            <div class="row justify-content-around">Player 2</div>
         </div>
-        <ng-container *ngFor="let t2Card of gameService.getT2Showing(); let i = index">
-            <div class="col-sm-2" *ngIf="i < 4"
-                (click)="gameService.getT2Showing().pop(); gameService.populateShowing(gameService.getT2Deck(), gameService.getT2Showing())">
-                <div class="card bg-warning">
-                    <img class="card-img"
-                        style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
-                        src="../../../assets/t2gems.svg" alt="t2">
-                    <div class="card-img-overlay">
-                        <div class="d-flex flex-column h-100 justify-content-between">
-                            <div class="row justify-content-around bg-light">
-                                <h4>{{t2Card.points}}</h4>
-                                <h4 [ngStyle]="getCostColor(t2Card.value.type[0])">{{t2Card.value.value}}</h4>
-                            </div>
-                            <div class="row justify-content-around bg-light">
-                                <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
-                                    *ngFor="let cardCost of t2Card.cost">{{cardCost.value}}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </ng-container>
+        <div class="col"></div>
     </div>
-</section>
-<br>
-<section class="container" *ngIf="gameService.getT1Deck() && gameService.getT1Showing()">
-    <div class="row justify-content-around" style="height: 15vh;">
-        <div class="col-sm-2">
-            <div class="card bg-primary">
-                <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .5;"
-                    src="../../../assets/t1gem.png" alt="t1">
-                <div class="card-img-overlay">
-                    <div class="d-flex flex-column h-100 justify-content-between">
-                        <div class="row justify-content-around bg-light">
-                            <h4>{{gameService.getT1Deck().length}}</h4>
-                        </div>
-                        <div class="row justify-content-around bg-light">
-                            <h4 class="card-text text-center">Tier 1</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <br>
+    <div class="row"></div>
+    <div class="row">
+        <div class="col-1 bg-light">
+            <div class="row justify-content-around">Player 3</div>
         </div>
-        <ng-container *ngFor="let t1Card of gameService.getT1Showing(); let i = index">
-            <div class="col-sm-2" *ngIf="i < 4"
-                (click)="gameService.getT1Showing().pop(); gameService.populateShowing(gameService.getT1Deck(), gameService.getT1Showing())">
-                <div class="card bg-primary">
-                    <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
-                        src="../../../assets/t1gem.png" alt="t1">
-                    <div class="card-img-overlay">
-                        <div class="d-flex flex-column h-100 justify-content-between">
-                            <div class="row justify-content-around bg-light">
-                                <h4>{{t1Card.points}}</h4>
-                                <h4 [ngStyle]="getCostColor(t1Card.value.type[0])">{{t1Card.value.value}}</h4>
+        <div class="col">
+            <section class="container" *ngIf="gameService.getNobles() && gameService.getNobles().length > 0">
+                <div class="row justify-content-around" style="height: 15vh;">
+                    <ng-container *ngFor="let noble of gameService.getNobles()">
+                        <div class="col-sm-2">
+                            <div class="card bg-dark">
+                                <img class="card-img" style="object-fit: cover; height: 15vh;"
+                                    src="../../../assets/noble.jpg" alt="noble">
+                                <div class="card-img-overlay">
+                                    <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="row justify-content-around bg-light">
+                                            <h4 class="card-text">{{noble.points}}</h4>
+                                            <h4></h4>
+                                        </div>
+                                        <div class="row justify-content-around bg-light">
+                                            <h4 class="card-text text-center"
+                                                [ngStyle]="getCostColor(nobleCost.type[0])"
+                                                *ngFor="let nobleCost of noble.cost">
+                                                {{nobleCost.value}}</h4>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="row justify-content-around bg-light">
-                                <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
-                                    *ngFor="let cardCost of t1Card.cost">{{cardCost.value}}</h4>
+                        </div>
+                    </ng-container>
+                </div>
+            </section>
+            <br>
+            <section class="container" *ngIf="gameService.getT3Deck() && gameService.getT3Showing()">
+                <div class="row justify-content-around" style="height: 15vh;">
+                    <div class="col-sm-2">
+                        <div class="card bg-success">
+                            <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .5;"
+                                src="../../../assets/t3gems.png" alt="t3">
+                            <div class="card-img-overlay">
+                                <div class="d-flex flex-column h-100 justify-content-between">
+                                    <div class="row justify-content-around bg-light">
+                                        <h4>{{gameService.getT3Deck().length}}</h4>
+                                    </div>
+                                    <div class="row justify-content-around bg-light">
+                                        <h4 class="card-text text-center">Tier 3</h4>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <ng-container *ngFor="let t3Card of gameService.getT3Showing(); let i = index">
+                        <div class="col-sm-2" *ngIf="i < 4"
+                            (click)="gameService.getT3Showing().pop(); gameService.populateShowing(gameService.getT3Deck(), gameService.getT3Showing())">
+                            <div class="card bg-success">
+                                <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
+                                    src="../../../assets/t3gems.png" alt="t3">
+                                <div class="card-img-overlay">
+                                    <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="row justify-content-around bg-light">
+                                            <h4>{{t3Card.points}}</h4>
+                                            <h4 [ngStyle]="getCostColor(t3Card.value.type[0])">{{t3Card.value.value}}
+                                            </h4>
+                                        </div>
+                                        <div class="row justify-content-around bg-light">
+                                            <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
+                                                *ngFor="let cardCost of t3Card.cost">{{cardCost.value}}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
                 </div>
-            </div>
-        </ng-container>
+            </section>
+            <br>
+            <section class="container" *ngIf="gameService.getT2Deck() && gameService.getT2Showing()">
+                <div class="row justify-content-around" style="height: 15vh;">
+                    <div class="col-sm-2">
+                        <div class="card bg-warning">
+                            <img class="card-img"
+                                style="object-fit: cover; height: 15vh; opacity: .5; background-color: white;"
+                                src="../../../assets/t2gems.svg" alt="t2">
+                            <div class="card-img-overlay">
+                                <div class="d-flex flex-column h-100 justify-content-between">
+                                    <div class="row justify-content-around bg-light">
+                                        <h4>{{gameService.getT2Deck().length}}</h4>
+                                    </div>
+                                    <div class="row justify-content-around bg-light">
+                                        <h4 class="card-text text-center">Tier 2</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-container *ngFor="let t2Card of gameService.getT2Showing(); let i = index">
+                        <div class="col-sm-2" *ngIf="i < 4"
+                            (click)="gameService.getT2Showing().pop(); gameService.populateShowing(gameService.getT2Deck(), gameService.getT2Showing())">
+                            <div class="card bg-warning">
+                                <img class="card-img"
+                                    style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
+                                    src="../../../assets/t2gems.svg" alt="t2">
+                                <div class="card-img-overlay">
+                                    <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="row justify-content-around bg-light">
+                                            <h4>{{t2Card.points}}</h4>
+                                            <h4 [ngStyle]="getCostColor(t2Card.value.type[0])">{{t2Card.value.value}}
+                                            </h4>
+                                        </div>
+                                        <div class="row justify-content-around bg-light">
+                                            <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
+                                                *ngFor="let cardCost of t2Card.cost">{{cardCost.value}}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </section>
+            <br>
+            <section class="container" *ngIf="gameService.getT1Deck() && gameService.getT1Showing()">
+                <div class="row justify-content-around" style="height: 15vh;">
+                    <div class="col-sm-2">
+                        <div class="card bg-primary">
+                            <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .5;"
+                                src="../../../assets/t1gem.png" alt="t1">
+                            <div class="card-img-overlay">
+                                <div class="d-flex flex-column h-100 justify-content-between">
+                                    <div class="row justify-content-around bg-light">
+                                        <h4>{{gameService.getT1Deck().length}}</h4>
+                                    </div>
+                                    <div class="row justify-content-around bg-light">
+                                        <h4 class="card-text text-center">Tier 1</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-container *ngFor="let t1Card of gameService.getT1Showing(); let i = index">
+                        <div class="col-sm-2" *ngIf="i < 4"
+                            (click)="gameService.getT1Showing().pop(); gameService.populateShowing(gameService.getT1Deck(), gameService.getT1Showing())">
+                            <div class="card bg-primary">
+                                <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
+                                    src="../../../assets/t1gem.png" alt="t1">
+                                <div class="card-img-overlay">
+                                    <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="row justify-content-around bg-light">
+                                            <h4>{{t1Card.points}}</h4>
+                                            <h4 [ngStyle]="getCostColor(t1Card.value.type[0])">{{t1Card.value.value}}
+                                            </h4>
+                                        </div>
+                                        <div class="row justify-content-around bg-light">
+                                            <h4 class="card-text text-center" [ngStyle]="getCostColor(cardCost.type[0])"
+                                                *ngFor="let cardCost of t1Card.cost">{{cardCost.value}}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </section>
+        </div>
+        <div class="col-1 bg-light">
+            <div class="row justify-content-around">Player 4</div>
+        </div>
     </div>
-</section>
+    <br>
+    <div class="row align-items-center">
+        <div class="col"></div>
+        <div class="col bg-light">
+            <div class="row justify-content-around">You</div>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
