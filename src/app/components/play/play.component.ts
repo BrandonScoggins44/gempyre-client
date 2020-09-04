@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GameService } from "../../services/game.service";
-import { getCurrencySymbol } from '@angular/common';
+import { GemType } from 'src/app/enums/gem-type.enum';
 
 @Component({
   selector: 'app-play',
@@ -8,6 +8,8 @@ import { getCurrencySymbol } from '@angular/common';
   styleUrls: ['./play.component.css']
 })
 export class PlayComponent implements OnInit {
+
+  public gemTypes = Object.keys(GemType)
 
   constructor(public gameService: GameService) { }
 
@@ -40,6 +42,38 @@ export class PlayComponent implements OnInit {
         return {
           'color': 'red'
         }
+      }
+      default: {
+        console.log('match not found')
+        break;
+      }
+    }
+  }
+
+  public getGemColor(leadingChar: string) {
+    switch (leadingChar) {
+      case 'E': {
+        return 'bg-success'
+      }
+      case 'D': {
+        return 'bg-secondary'
+
+      }
+      case 'S': {
+        return 'bg-primary'
+
+      }
+      case 'O': {
+        return 'bg-dark'
+
+      }
+      case 'R': {
+        return 'bg-danger'
+
+      }
+      case 'G': {
+        return 'bg-warning'
+
       }
       default: {
         console.log('match not found')

@@ -196,8 +196,25 @@
 
             <div class="col-1"></div>
 
-            <div class="col-1 border border-light">
-                <p style="color: white;">gem area</p>
+            <div class="col-1 d-flex flex-column justify-content-around border border-light">
+
+                <div *ngFor="let gem of gemTypes">
+
+                    <div class="card" [ngClass]=getGemColor(gem[0])>
+                        <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
+                            src="../../../assets/t1gem.png" alt="t1">
+                        <div class="card-img-overlay">
+                            <div class="d-flex flex-column justify-content-center">
+                                <div class="row justify-content-around bg-light">
+                                    <h4>{{gem.substring(0, 3)}}</h4>
+                                    <h4>10</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
 
             <div class="col-1"></div>
