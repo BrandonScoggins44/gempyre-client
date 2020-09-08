@@ -24,7 +24,7 @@ export class GameService {
   private t1Showing: Tier1Card[];
 
   private tokens: Token[];
-  private numberOfPlayers: number = 3;
+  private numberOfPlayers: number = 2;
 
   private gameInProgress: boolean = false;
 
@@ -53,7 +53,7 @@ export class GameService {
 
     this.nobles = []                                                                                              // clear nobles incase of new game
 
-    for (var i = 0; i < 4; i++) {                                                                                 // get index limit from rule based on number of players
+    for (var i = 0; i < (this.numberOfPlayers < 4 ? 4 : 5); i++) {                                                // get index limit from rule based on number of players
       let availableTypes = Object.keys(GemType)                                                                   // get all gem types from enum
       availableTypes.pop()                                                                                        // remove the last gem type, "GOLD", to genereate noble cost
 
