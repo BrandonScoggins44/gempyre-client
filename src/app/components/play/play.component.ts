@@ -43,6 +43,11 @@ export class PlayComponent implements OnInit {
           'color': 'red'
         }
       }
+      case 'G': {
+        return {
+          'color': 'orange'
+        }
+      }
       default: {
         console.log('match not found')
         break;
@@ -80,5 +85,9 @@ export class PlayComponent implements OnInit {
         break;
       }
     }
+  }
+
+  public getGemTypeFromString(gemName: String): GemType {
+    return GemType[gemName as GemType]
   }
 }

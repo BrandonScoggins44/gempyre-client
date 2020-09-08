@@ -3,7 +3,6 @@ import { Noble } from '../classes/noble';
 import { Tier3Card } from '../classes/tier3-card';
 import { Tier2Card } from '../classes/tier2-card';
 import { Tier1Card } from '../classes/tier1-card';
-import { Token } from '../classes/token';
 import { GemType } from '../enums/gem-type.enum';
 import { Gem } from '../interfaces/gem';
 import { Card } from '../interfaces/card';
@@ -23,7 +22,7 @@ export class GameService {
   private t2Showing: Tier2Card[];
   private t1Showing: Tier1Card[];
 
-  private tokens: Token[];
+  private bankTokens: Map<GemType, number>;
   private numberOfPlayers: number = 2;
 
   private gameInProgress: boolean = false;
@@ -34,6 +33,7 @@ export class GameService {
     this.setGameInProgress(true)
 
     this.generateNobles();
+    this.generateTokens();
 
     this.t1Deck = []
     this.t2Deck = []
@@ -54,8 +54,6 @@ export class GameService {
     this.nobles = []                                                                                              // clear nobles incase of new game
 
     for (var i = 0; i < (this.numberOfPlayers < 4 ? 4 : 5); i++) {                                                // get index limit from rule based on number of players
-      let availableTypes = Object.keys(GemType)                                                                   // get all gem types from enum
-      availableTypes.pop()                                                                                        // remove the last gem type, "GOLD", to genereate noble cost
 
       let cost: Gem[] = [];
 
@@ -75,6 +73,19 @@ export class GameService {
     }
     this.shuffleCards(this.nobles)
     console.log('nobles', this.nobles)
+  }
+
+  private generateTokens(): void {
+    console.log('generateTokens')
+
+    this.bankTokens = new Map<GemType, number>();                                                                 // clear nobles incase of new game
+
+    let gemTypes = Object.keys(GemType)                                                                           // get gem types excluding gold
+
+    for (var type of gemTypes) {
+      this.bankTokens.set(GemType[type], this.numberOfPlayers * 2 + 2)
+    }
+    console.log('bankTokens', this.bankTokens)
   }
 
   private generateTierCards(deck: Card[], showing: Card[], muliplier: number, tier: number, costRange: number, costMin: number, pointRange: number, pointMin: number, pointModifier: number): void {
@@ -227,12 +238,12 @@ export class GameService {
     this.t1Showing = t1Showing;
   }
 
-  public getTokens(): Token[] {
-    return this.tokens;
+  public getBankTokens(): Map<GemType, number> {
+    return this.bankTokens;
   }
 
-  public setTokens(tokens: Token[]): void {
-    this.tokens = tokens;
+  public setBankTokens(bankTokens: Map<GemType, number>): void {
+    this.bankTokens = bankTokens;
   }
 
   public getNumberOfPlayers(): number {
