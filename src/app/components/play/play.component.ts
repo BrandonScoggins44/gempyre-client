@@ -93,7 +93,6 @@ export class PlayComponent implements OnInit {
   }
 
   public buyCard(card: Card, showingIndex: number): void {
-    // let card =  this.gameService.getT1Showing()[showingIndex]
     console.log('card', card)
     if (card) {
       switch (card.tier) {
@@ -118,6 +117,7 @@ export class PlayComponent implements OnInit {
   }
 
   public updateBankTokens(gemType: GemType, value: number): void {
-    this.gameService.getBankTokens().set(gemType, this.gameService.getBankTokens().get(gemType) + value)
+    let newValue = this.gameService.getBankTokens().get(gemType) + value
+    this.gameService.getBankTokens().set(gemType, newValue >= 0 ? newValue : 0)
   }
 }
