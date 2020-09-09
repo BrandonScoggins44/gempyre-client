@@ -120,4 +120,8 @@ export class PlayComponent implements OnInit {
     let newValue = this.gameService.getBankTokens().get(gemType) + value
     this.gameService.getBankTokens().set(gemType, newValue >= 0 ? newValue : 0)
   }
+
+  public playerTokenChoice(): void {
+    
+  }
 }

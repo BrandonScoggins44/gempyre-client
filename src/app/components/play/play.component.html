@@ -76,7 +76,7 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT3Showing(); let i = index">
                             <div class="col-sm-2" *ngIf="i < 4" (click)="buyCard(card, i)">
-                                <div class="card bg-success">
+                                <div class="card pointer bg-success">
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t3gems.png" alt="t3">
                                     <div class="card-img-overlay">
@@ -122,7 +122,7 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT2Showing(); let i = index">
                             <div class="col-sm-2" *ngIf="i < 4" (click)="buyCard(card, i)">
-                                <div class="card bg-warning">
+                                <div class="card pointer bg-warning">
                                     <img class="card-img"
                                         style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                                         src="../../../assets/t2gems.svg" alt="t2">
@@ -168,7 +168,7 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT1Showing(); let i = index">
                             <div class="col-sm-2" *ngIf="i < 4" (click)="buyCard(card, i)">
-                                <div class="card bg-primary">
+                                <div class="card pointer bg-primary">
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t1gem.png" alt="t1">
                                     <div class="card-img-overlay">
@@ -200,7 +200,7 @@
 
                 <div *ngFor="let gem of gemTypes">
 
-                    <div class="card" [ngClass]=getGemColor(gem[0])
+                    <div class="card pointer" [ngClass]=getGemColor(gem[0])
                         (click)="updateBankTokens(getGemTypeFromString(gem), -1)">
                         <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                             src="../../../assets/t1gem.png" alt="{{gem}}">
@@ -228,11 +228,13 @@
         <br>
 
         <div class="row align-items-center">
-            <div class="col"></div>
-            <div class="col bg-light">
+            <div class="col text-center text-light">Turn Status (place holder)</div>
+            <div class="col-1"></div>
+            <div class="col-4 bg-light">
                 <div class="row justify-content-around">You</div>
             </div>
-            <div class="col"></div>
+            <div class="col-1"></div>
+            <div class="col text-center text-light">End Turn (place holder)</div>
         </div>
     </div>
 </div>
