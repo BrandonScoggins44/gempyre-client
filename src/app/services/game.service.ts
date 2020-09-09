@@ -142,6 +142,16 @@ export class GameService {
     }
   }
 
+  public updateShowing(deck: Card[], showing: Card[], showingIndex: number): void {
+    if (!deck || !showing || showingIndex == NaN) {
+      console.log('Error in updateShowing')
+      return
+    }
+
+    showing[showingIndex] = deck.pop()
+    console.log('showing', showing)
+  }
+
   private generateCost(cost: Gem[], value: number, numOfCosts?: number): void {
     let availableTypes = Object.keys(GemType)                                                                       // get all gem types from enum
     availableTypes.pop()                                                                                            // remove the last gem type, "GOLD", to genereate cost

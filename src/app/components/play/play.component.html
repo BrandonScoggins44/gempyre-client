@@ -74,24 +74,24 @@
                                 </div>
                             </div>
                         </div>
-                        <ng-container *ngFor="let t3Card of gameService.getT3Showing(); let i = index">
-                            <div class="col-sm-2" *ngIf="i < 4"
-                                (click)="gameService.getT3Showing().pop(); gameService.populateShowing(gameService.getT3Deck(), gameService.getT3Showing())">
+                        <ng-container *ngFor="let card of gameService.getT3Showing(); let i = index">
+                            <div class="col-sm-2" *ngIf="i < 4" (click)="buyCard(card, i)">
                                 <div class="card bg-success">
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t3gems.png" alt="t3">
                                     <div class="card-img-overlay">
-                                        <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="d-flex flex-column h-100 justify-content-between" *ngIf="card">
                                             <div class="row justify-content-around bg-light">
-                                                <h4>{{t3Card.points}}</h4>
-                                                <h4 [ngStyle]="getCostColor(t3Card.value.type[0])">
-                                                    {{t3Card.value.value}}
+                                                <h4>{{card.points}}</h4>
+                                                <h4>-</h4>
+                                                <h4 [ngStyle]="getCostColor(card.value.type[0])">
+                                                    {{card.value.value}}
                                                 </h4>
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
                                                     [ngStyle]="getCostColor(cardCost.type[0])"
-                                                    *ngFor="let cardCost of t3Card.cost">{{cardCost.value}}</h4>
+                                                    *ngFor="let cardCost of card.cost">{{cardCost.value}}</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -120,25 +120,25 @@
                                 </div>
                             </div>
                         </div>
-                        <ng-container *ngFor="let t2Card of gameService.getT2Showing(); let i = index">
-                            <div class="col-sm-2" *ngIf="i < 4"
-                                (click)="gameService.getT2Showing().pop(); gameService.populateShowing(gameService.getT2Deck(), gameService.getT2Showing())">
+                        <ng-container *ngFor="let card of gameService.getT2Showing(); let i = index">
+                            <div class="col-sm-2" *ngIf="i < 4" (click)="buyCard(card, i)">
                                 <div class="card bg-warning">
                                     <img class="card-img"
                                         style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                                         src="../../../assets/t2gems.svg" alt="t2">
                                     <div class="card-img-overlay">
-                                        <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="d-flex flex-column h-100 justify-content-between" *ngIf="card">
                                             <div class="row justify-content-around bg-light">
-                                                <h4>{{t2Card.points}}</h4>
-                                                <h4 [ngStyle]="getCostColor(t2Card.value.type[0])">
-                                                    {{t2Card.value.value}}
+                                                <h4>{{card.points}}</h4>
+                                                <h4>-</h4>
+                                                <h4 [ngStyle]="getCostColor(card.value.type[0])">
+                                                    {{card.value.value}}
                                                 </h4>
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
                                                     [ngStyle]="getCostColor(cardCost.type[0])"
-                                                    *ngFor="let cardCost of t2Card.cost">{{cardCost.value}}</h4>
+                                                    *ngFor="let cardCost of card.cost">{{cardCost.value}}</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -166,24 +166,24 @@
                                 </div>
                             </div>
                         </div>
-                        <ng-container *ngFor="let t1Card of gameService.getT1Showing(); let i = index">
-                            <div class="col-sm-2" *ngIf="i < 4"
-                                (click)="gameService.getT1Showing().pop(); gameService.populateShowing(gameService.getT1Deck(), gameService.getT1Showing())">
+                        <ng-container *ngFor="let card of gameService.getT1Showing(); let i = index">
+                            <div class="col-sm-2" *ngIf="i < 4" (click)="buyCard(card, i)">
                                 <div class="card bg-primary">
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t1gem.png" alt="t1">
                                     <div class="card-img-overlay">
-                                        <div class="d-flex flex-column h-100 justify-content-between">
+                                        <div class="d-flex flex-column h-100 justify-content-between" *ngIf="card">
                                             <div class="row justify-content-around bg-light">
-                                                <h4>{{t1Card.points}}</h4>
-                                                <h4 [ngStyle]="getCostColor(t1Card.value.type[0])">
-                                                    {{t1Card.value.value}}
+                                                <h4>{{card.points}}</h4>
+                                                <h4>-</h4>
+                                                <h4 [ngStyle]="getCostColor(card.value.type[0])">
+                                                    {{card.value.value}}
                                                 </h4>
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
                                                     [ngStyle]="getCostColor(cardCost.type[0])"
-                                                    *ngFor="let cardCost of t1Card.cost">{{cardCost.value}}</h4>
+                                                    *ngFor="let cardCost of card.cost">{{cardCost.value}}</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -200,7 +200,8 @@
 
                 <div *ngFor="let gem of gemTypes">
 
-                    <div class="card" [ngClass]=getGemColor(gem[0])>
+                    <div class="card" [ngClass]=getGemColor(gem[0])
+                        (click)="updateBankTokens(getGemTypeFromString(gem), -1)">
                         <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                             src="../../../assets/t1gem.png" alt="{{gem}}">
                         <div class="card-img-overlay">

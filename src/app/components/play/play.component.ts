@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { GameService } from "../../services/game.service";
 import { GemType } from 'src/app/enums/gem-type.enum';
+import { Card } from 'src/app/interfaces/card';
 
 @Component({
   selector: 'app-play',
@@ -89,5 +90,34 @@ export class PlayComponent implements OnInit {
 
   public getGemTypeFromString(gemName: String): GemType {
     return GemType[gemName as GemType]
+  }
+
+  public buyCard(card: Card, showingIndex: number): void {
+    // let card =  this.gameService.getT1Showing()[showingIndex]
+    console.log('card', card)
+    if (card) {
+      switch (card.tier) {
+        case 1: {
+          this.gameService.updateShowing(this.gameService.getT1Deck(), this.gameService.getT1Showing(), showingIndex)
+          break;
+        }
+        case 2: {
+          this.gameService.updateShowing(this.gameService.getT2Deck(), this.gameService.getT2Showing(), showingIndex)
+          break;
+        }
+        case 3: {
+          this.gameService.updateShowing(this.gameService.getT3Deck(), this.gameService.getT3Showing(), showingIndex)
+          break;
+        }
+        default: {
+          console.log('tier not found')
+          break;
+        }
+      }
+    }
+  }
+
+  public updateBankTokens(gemType: GemType, value: number): void {
+    this.gameService.getBankTokens().set(gemType, this.gameService.getBankTokens().get(gemType) + value)
   }
 }
