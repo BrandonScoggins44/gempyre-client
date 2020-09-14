@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { GameService } from "../../services/game.service";
 import { GemType } from 'src/app/enums/gem-type.enum';
 import { Card } from 'src/app/interfaces/card';
+import { GameService } from "../../services/game.service";
 
 @Component({
   selector: 'app-play',
@@ -122,6 +122,6 @@ export class PlayComponent implements OnInit {
   }
 
   public playerTokenChoice(): void {
-    
+
   }
 }

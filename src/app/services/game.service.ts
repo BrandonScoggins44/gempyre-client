@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Noble } from '../classes/noble';
-import { Tier3Card } from '../classes/tier3-card';
-import { Tier2Card } from '../classes/tier2-card';
+import { Player } from '../classes/player';
 import { Tier1Card } from '../classes/tier1-card';
+import { Tier2Card } from '../classes/tier2-card';
+import { Tier3Card } from '../classes/tier3-card';
 import { GemType } from '../enums/gem-type.enum';
-import { Gem } from '../interfaces/gem';
 import { Card } from '../interfaces/card';
+import { Gem } from '../interfaces/gem';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class GameService {
 
   private bankTokens: Map<GemType, number>;
   private numberOfPlayers: number = 2;
+  private players: Player[];
 
   private gameInProgress: boolean = false;
 
@@ -34,6 +36,7 @@ export class GameService {
 
     this.generateNobles();
     this.generateTokens();
+    this.generatePlayers();
 
     this.t1Deck = []
     this.t2Deck = []
@@ -78,14 +81,25 @@ export class GameService {
   private generateTokens(): void {
     console.log('generateTokens')
 
-    this.bankTokens = new Map<GemType, number>();                                                                 // clear nobles incase of new game
+    this.bankTokens = new Map<GemType, number>();
 
-    let gemTypes = Object.keys(GemType)                                                                           // get gem types excluding gold
+    let gemTypes = Object.keys(GemType)
 
     for (var type of gemTypes) {
       this.bankTokens.set(GemType[type], this.numberOfPlayers * 2 + 2)
     }
     console.log('bankTokens', this.bankTokens)
+  }
+
+  private generatePlayers(): void {
+    console.log('generatePlayers')
+
+    this.players = [];                                                                                            // clear players for new game
+
+    for (let i = 0; i < this.numberOfPlayers; i++) {
+      this.players.push(new Player({ id: i, name: `Player ${i + 1}` }))
+    }
+    console.log('players', this.players)
   }
 
   private generateTierCards(deck: Card[], showing: Card[], muliplier: number, tier: number, costRange: number, costMin: number, pointRange: number, pointMin: number, pointModifier: number): void {
@@ -270,5 +284,13 @@ export class GameService {
 
   public setGameInProgress(gameInProgress: boolean): void {
     this.gameInProgress = gameInProgress;
+  }
+
+  public getPlayers(): Player[] {
+    return this.players;
+  }
+
+  public setPlayers(players: Player[]): void {
+    this.players = players;
   }
 }

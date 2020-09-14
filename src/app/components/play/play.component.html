@@ -12,8 +12,8 @@
                         Game</button>
                 </div>
             </div>
-            <div class="col bg-light" *ngIf="gameService.getNumberOfPlayers() >= 2">
-                <div class="row justify-content-around">Player 2</div>
+            <div class="col bg-light" *ngIf="gameService.getNumberOfPlayers() >= 2" style="height: 9vh;">
+                <div class="row justify-content-around">{{gameService.getPlayers()[1].name}}</div>
             </div>
             <div class="col"></div>
         </div>
@@ -23,7 +23,7 @@
         <div class="row">
 
             <div class="col-1 bg-light" *ngIf="gameService.getNumberOfPlayers() >= 3">
-                <div class="row justify-content-around">Player 3</div>
+                <div class="row justify-content-around">{{gameService.getPlayers()[2].name}}</div>
             </div>
 
             <div class="col-1"></div>
@@ -221,20 +221,30 @@
             <div class="col-1"></div>
 
             <div class="col-1 bg-light" *ngIf="gameService.getNumberOfPlayers() >= 4">
-                <div class="row justify-content-around">Player 4</div>
+                <div class="row justify-content-around">{{gameService.getPlayers()[3].name}}</div>
             </div>
         </div>
 
         <br>
 
         <div class="row align-items-center">
-            <div class="col text-center text-light">Turn Status (place holder)</div>
-            <div class="col-1"></div>
-            <div class="col-4 bg-light">
-                <div class="row justify-content-around">You</div>
+            <div class="col text-center text-light border border-light" style="height: 9vh;">Turn Status (place holder -
+                make pop up?)
             </div>
             <div class="col-1"></div>
-            <div class="col text-center text-light">End Turn (place holder)</div>
+            <div class="col-4 bg-light" style="height: 9vh;">
+                <div class="row justify-content-around">{{gameService.getPlayers()[0].name}} (You)</div>
+            </div>
+            <div class="col-1">
+                <button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="Popover title"
+                    data-content="And here's some amazing content. It's very engaging. Right?">Click to toggle
+                    popover</button>
+                <!-- <button type="button" class="btn btn-secondary test-tooltip" data-toggle="tooltip" data-placement="top"
+                    title="Tooltip on top">
+                    Tooltip on top
+                </button> -->
+            </div>
+            <div class="col text-center text-light">End Turn (place holder - make button)</div>
         </div>
     </div>
 </div>
