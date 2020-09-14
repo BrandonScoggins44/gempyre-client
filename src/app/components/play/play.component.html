@@ -228,22 +228,43 @@
         <br>
 
         <div class="row align-items-center">
-            <div class="col text-center text-light border border-light" style="height: 9vh;">Turn Status (place holder -
-                make pop up?)
+            <div class="col">
+                <div class="row justify-content-center">
+
+                    <ng-template #popContent>
+                        <div *ngFor="let gem of gemTypes; let i = index">
+
+                            <div class="card pointer" [ngClass]=getGemColor(gem[0])
+                                (click)="updateBankTokens(getGemTypeFromString(gem), -1)" *ngIf="i < 3">
+                                <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
+                                    src="../../../assets/t1gem.png" alt="{{gem}}">
+                                <div class="card-img-overlay">
+                                    <div class="d-flex flex-column justify-content-center">
+                                        <div class="row justify-content-around bg-light">
+                                            <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h4>
+                                            <h4>{{gameService.getBankTokens().get(getGemTypeFromString(gem))}}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </ng-template>
+
+                    <ng-template #popTitle>Buy/Reserve Card or Gather Gems</ng-template>
+
+                    <button type="button" class="btn btn-light" placement="top" [ngbPopover]="popContent"
+                        [popoverTitle]="popTitle">
+                        Turn Action
+                    </button>
+
+                </div>
             </div>
             <div class="col-1"></div>
             <div class="col-4 bg-light" style="height: 9vh;">
                 <div class="row justify-content-around">{{gameService.getPlayers()[0].name}} (You)</div>
             </div>
-            <div class="col-1">
-                <button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="Popover title"
-                    data-content="And here's some amazing content. It's very engaging. Right?">Click to toggle
-                    popover</button>
-                <!-- <button type="button" class="btn btn-secondary test-tooltip" data-toggle="tooltip" data-placement="top"
-                    title="Tooltip on top">
-                    Tooltip on top
-                </button> -->
-            </div>
+            <div class="col-1"></div>
             <div class="col text-center text-light">End Turn (place holder - make button)</div>
         </div>
     </div>
