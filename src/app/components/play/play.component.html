@@ -1,6 +1,7 @@
 <div class="col">
     <div class="row justify-content-start" *ngIf="!gameService.getGameInProgress()">
-        <button type="button" class="btn btn-light" (click)="gameService.buildGame();">Start New Game</button>
+        <button type="button" class="btn btn-light" (click)="gameService.buildGame(); startNewTurn();">Start New
+            Game</button>
     </div>
 
     <div *ngIf="gameService.getGameInProgress()">
@@ -8,10 +9,12 @@
         <div class="row align-items-center">
             <div class="col">
                 <div class="row justify-content-start">
-                    <button type="button" class="btn btn-light" (click)="gameService.buildGame();">Start New
+                    <button type="button" class="btn btn-light" (click)="gameService.buildGame(); startNewTurn();">Start
+                        New
                         Game</button>
                 </div>
             </div>
+            <!-- Player 2 -->
             <div class="col bg-light" *ngIf="gameService.getNumberOfPlayers() >= 2" style="height: 9vh;">
                 <div class="row justify-content-around">{{gameService.getPlayers()[1].name}}</div>
             </div>
@@ -21,7 +24,7 @@
         <br>
 
         <div class="row">
-
+            <!-- Player 3 -->
             <div class="col-1 bg-light" *ngIf="gameService.getNumberOfPlayers() >= 3">
                 <div class="row justify-content-around">{{gameService.getPlayers()[2].name}}</div>
             </div>
@@ -29,6 +32,7 @@
             <div class="col-1"></div>
 
             <div class="col">
+                <!-- Nobles -->
                 <section class="container" *ngIf="gameService.getNobles() && gameService.getNobles().length > 0">
                     <div class="row justify-content-around" style="height: 15vh;">
                         <ng-container *ngFor="let noble of gameService.getNobles()">
@@ -56,6 +60,7 @@
                     </div>
                 </section>
                 <br>
+                <!-- Tier 3 Cards -->
                 <section class="container" *ngIf="gameService.getT3Deck() && gameService.getT3Showing()">
                     <div class="row justify-content-around" style="height: 15vh;">
                         <div class="col-sm-2">
@@ -101,6 +106,7 @@
                     </div>
                 </section>
                 <br>
+                <!-- Tier 2 Cards -->
                 <section class="container" *ngIf="gameService.getT2Deck() && gameService.getT2Showing()">
                     <div class="row justify-content-around" style="height: 15vh;">
                         <div class="col-sm-2">
@@ -148,6 +154,7 @@
                     </div>
                 </section>
                 <br>
+                <!-- Tier 1 Cards -->
                 <section class="container" *ngIf="gameService.getT1Deck() && gameService.getT1Showing()">
                     <div class="row justify-content-around" style="height: 15vh;">
                         <div class="col-sm-2">
@@ -195,13 +202,14 @@
             </div>
 
             <div class="col-1"></div>
-
+            <!-- Gem Bank -->
             <div class="col-1 d-flex flex-column justify-content-around border border-light">
 
                 <div *ngFor="let gem of gemTypes">
 
                     <div class="card pointer" [ngClass]=getGemColor(gem[0])
-                        (click)="updateBankTokens(getGemTypeFromString(gem), -1)">
+                        (click)="gatherGem(getGemTypeFromString(gem))">
+                        <!-- (click)="updateBankTokens(getGemTypeFromString(gem), -1)"> -->
                         <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                             src="../../../assets/t1gem.png" alt="{{gem}}">
                         <div class="card-img-overlay">
@@ -219,7 +227,7 @@
             </div>
 
             <div class="col-1"></div>
-
+            <!-- Player 4 -->
             <div class="col-1 bg-light" *ngIf="gameService.getNumberOfPlayers() >= 4">
                 <div class="row justify-content-around">{{gameService.getPlayers()[3].name}}</div>
             </div>
@@ -229,20 +237,24 @@
 
         <div class="row align-items-center">
             <div class="col">
+                <!-- Turn Action -->
                 <div class="row justify-content-center">
 
-                    <ng-template #popContent>
-                        <div *ngFor="let gem of gemTypes; let i = index">
+                    <ng-template #popTitle>
+                        <div class="text-center">{{turnAction}}</div>
+                    </ng-template>
 
-                            <div class="card pointer" [ngClass]=getGemColor(gem[0])
-                                (click)="updateBankTokens(getGemTypeFromString(gem), -1)" *ngIf="i < 3">
+                    <ng-template #popContent>
+                        <div *ngFor="let gem of gatheredGems">
+
+                            <div class="card pointer" [ngClass]=getGemColor(gem[0]) (click)="returnGem(gem)">
                                 <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                                     src="../../../assets/t1gem.png" alt="{{gem}}">
                                 <div class="card-img-overlay">
                                     <div class="d-flex flex-column justify-content-center">
                                         <div class="row justify-content-around bg-light">
                                             <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h4>
-                                            <h4>{{gameService.getBankTokens().get(getGemTypeFromString(gem))}}</h4>
+                                            <h4>1</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -250,8 +262,6 @@
 
                         </div>
                     </ng-template>
-
-                    <ng-template #popTitle>Buy/Reserve Card or Gather Gems</ng-template>
 
                     <button type="button" class="btn btn-light" placement="top" [ngbPopover]="popContent"
                         [popoverTitle]="popTitle">
@@ -261,11 +271,32 @@
                 </div>
             </div>
             <div class="col-1"></div>
+            <!-- Player 1 -->
             <div class="col-4 bg-light" style="height: 9vh;">
                 <div class="row justify-content-around">{{gameService.getPlayers()[0].name}} (You)</div>
+
+
+                <div class="row justify-content-around">
+                    <div *ngFor="let gem of gemTypes">
+                        <h6 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
+                        <h6 [ngStyle]="getCostColor(gem[0])">{{gameService.getPlayers()[0].gems.get(getGemTypeFromString(gem))}}</h6>
+                    </div>
+                </div>
+
+                <!-- <div class="row justify-content-around">
+                    <div *ngFor="let gem of gameService.getPlayers()[0].gems.entries()">{{gem}}</div>
+                </div> -->
+
             </div>
             <div class="col-1"></div>
-            <div class="col text-center text-light">End Turn (place holder - make button)</div>
+            <!-- End Turn -->
+            <div class="col">
+                <div class="row justify-content-center">
+                    <button type="button" class="btn btn-light" (click)="endTurn();">
+                        End Turn
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
