@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DoCheck, OnChanges, OnInit } from '@angular/core';
 import { Player } from 'src/app/classes/player';
 import { GemType } from 'src/app/enums/gem-type.enum';
 import { Card } from 'src/app/interfaces/card';
@@ -12,12 +12,30 @@ import { GameService } from "../../services/game.service";
 export class PlayComponent implements OnInit {
 
   public gemTypes = Object.keys(GemType)
+  private gempyreModalButton: HTMLElement;
+
+  // Move to alert enum
+  private ALERT_NONE = undefined;
+  private ALERT_SYSTEM_ERROR = 'Internal error. Please contact the adminastrator.'
+  private ALERT_MUST_TAKE_TURN_ACTION = 'No action has been taken. You must take an action before ending your turn.'
+  private ALERT_INVALID_GEM_SELECTION = 'Invalid gem selection. You must gather 3 unique gems, or 2 of the same gem type.'
+  private ALERT_OVERLAPPING_ACTIONS = 'Another action is already being performed. (add option to clear actions and continue)'
+
+  public alert: string;
+
+  // Move to alert type enum
+  private ALERT_TYPE_NONE = undefined;
+  private ALERT_TYPE_SYSTEM_ERROR = 'System Error'
+  private ALERT_TYPE_USER_ERROR = 'Invalid Play'
+
+  public alertType: string;
 
   // Move to enum (turn actions)    Buy/Reserve Card or Gather Gems
   private ACTION_NONE = 'No Action'
   private ACTION_GATHER_GEMS = 'Gather Gems'
 
   private turnAction: string;
+
   private gatheredGems: GemType[];
 
   constructor(public gameService: GameService) { }
@@ -25,6 +43,15 @@ export class PlayComponent implements OnInit {
   ngOnInit(): void {
     // temp
     this.startNewTurn()
+    this.alert = this.ALERT_NONE
+    this.alertType = this.ALERT_TYPE_NONE
+    this.gempyreModalButton = (document.querySelector('#gempyreModalButton') as HTMLElement);
+  }
+
+  public showGempyreModal(alertType: string, alert: string): void {
+    this.alertType = alertType;
+    this.alert = alert;
+    this.gempyreModalButton.click();
   }
 
   public getCostColor(leadingChar: string) {
@@ -60,7 +87,27 @@ export class PlayComponent implements OnInit {
         }
       }
       default: {
-        console.log('match not found')
+        console.log('getCostColor() : match not found')
+        this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
+        break;
+      }
+    }
+  }
+
+  public getModalBackdropColor() {
+    switch (this.alertType) {
+      case this.ALERT_TYPE_SYSTEM_ERROR: {
+        return {
+          'background-color': 'rgba(255, 0, 0, .05)'
+        }
+      }
+      case this.ALERT_TYPE_USER_ERROR: {
+        return {
+          'background-color': 'rgba(0, 0, 255, .05)'
+        }
+      }
+      default: {
+        console.log('getModalBackdropColor() : match not found')    // don't show modal here since it would be recursive
         break;
       }
     }
@@ -87,7 +134,8 @@ export class PlayComponent implements OnInit {
         return 'bg-warning'
       }
       default: {
-        console.log('match not found')
+        console.log('getGemColor() : match not found')
+        this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
         break;
       }
     }
@@ -98,6 +146,7 @@ export class PlayComponent implements OnInit {
     return this.gatheredGems.filter((gemType) => { return gemType == gem }).length
   }
 
+  // remove or improve this
   public getGemTypeFromString(gemName: String): GemType {
     return GemType[gemName as GemType]
   }
@@ -117,7 +166,7 @@ export class PlayComponent implements OnInit {
       this.implementTurnAction()
       this.startNewTurn()
     } else {
-      console.log('cannont pass turn without taking an action')
+      this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.alert);
     }
   }
 
@@ -127,23 +176,25 @@ export class PlayComponent implements OnInit {
 
     switch (this.turnAction) {
       case this.ACTION_NONE: {
-        console.log('No action taken. Please take an action.')
+        this.alert = this.ALERT_MUST_TAKE_TURN_ACTION
         return false;
       }
       case this.ACTION_GATHER_GEMS: {
         if (this.gatheredGems.length < 2) {
-          console.log('Not enough gems selected')
+          this.alert = this.ALERT_INVALID_GEM_SELECTION
           return false
         }
 
         if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1])
           return true
-        else
+        else {
+          this.alert = this.ALERT_INVALID_GEM_SELECTION
           return false
+        }
       }
       default: {
-        console.log('no actions')
-        break;
+        this.alert = this.ALERT_MUST_TAKE_TURN_ACTION
+        return false
       }
     }
   }
@@ -161,7 +212,7 @@ export class PlayComponent implements OnInit {
         break;
       }
       default: {
-        console.log('no actions')
+        this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
         break;
       }
     }
@@ -185,6 +236,7 @@ export class PlayComponent implements OnInit {
         }
         default: {
           console.log('tier not found')
+          this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
           break;
         }
       }
@@ -206,6 +258,7 @@ export class PlayComponent implements OnInit {
     // check that action is available
     if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_GATHER_GEMS) {
       console.log('Performing other action. Cannot gather gems')
+      this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
       return
     } else {
       this.turnAction = this.ACTION_GATHER_GEMS

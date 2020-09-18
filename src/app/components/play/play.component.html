@@ -275,17 +275,13 @@
             <div class="col-4 bg-light" style="height: 9vh;">
                 <div class="row justify-content-around">{{gameService.getPlayers()[0].name}} (You)</div>
 
-
                 <div class="row justify-content-around">
                     <div *ngFor="let gem of gemTypes">
                         <h6 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
-                        <h6 [ngStyle]="getCostColor(gem[0])">{{gameService.getPlayers()[0].gems.get(getGemTypeFromString(gem))}}</h6>
+                        <h6 [ngStyle]="getCostColor(gem[0])">
+                            {{gameService.getPlayers()[0].gems.get(getGemTypeFromString(gem))}}</h6>
                     </div>
                 </div>
-
-                <!-- <div class="row justify-content-around">
-                    <div *ngFor="let gem of gameService.getPlayers()[0].gems.entries()">{{gem}}</div>
-                </div> -->
 
             </div>
             <div class="col-1"></div>
@@ -296,6 +292,27 @@
                         End Turn
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Button trigger modal -->
+<button type="button" id="gempyreModalButton" class="btn" data-toggle="modal" data-target="#gempyreModal"
+    style="display: none;"></button>
+
+<!-- Modal -->
+<div class="modal fade" [ngStyle]="getModalBackdropColor()" id="gempyreModal" tabindex="-1" aria-labelledby="gempyreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gempyreModalLabel">{{alertType}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{alert}}
             </div>
         </div>
     </div>
