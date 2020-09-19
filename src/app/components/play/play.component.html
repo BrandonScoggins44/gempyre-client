@@ -207,9 +207,8 @@
 
                 <div *ngFor="let gem of gemTypes">
 
-                    <div class="card pointer" [ngClass]=getGemColor(gem[0])
+                    <div class="card" [ngClass]=getGemColor(gem[0]) [class.pointer]="gem[0] !== 'G'"
                         (click)="gatherGem(getGemTypeFromString(gem))">
-                        <!-- (click)="updateBankTokens(getGemTypeFromString(gem), -1)"> -->
                         <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                             src="../../../assets/t1gem.png" alt="{{gem}}">
                         <div class="card-img-overlay">
@@ -263,8 +262,8 @@
                         </div>
                     </ng-template>
 
-                    <button type="button" class="btn btn-light" id="turnActionButton" placement="top" [ngbPopover]="popContent"
-                        [popoverTitle]="popTitle">
+                    <button type="button" class="btn btn-light" id="turnActionButton" placement="top"
+                        [ngbPopover]="popContent" [popoverTitle]="popTitle">
                         Turn Action
                     </button>
 
@@ -302,7 +301,8 @@
     style="display: none;"></button>
 
 <!-- Modal -->
-<div class="modal fade" [ngStyle]="getModalBackdropColor()" id="gempyreModal" tabindex="-1" aria-labelledby="gempyreModalLabel" aria-hidden="true">
+<div class="modal fade" [ngStyle]="getModalBackdropColor()" id="gempyreModal" tabindex="-1"
+    aria-labelledby="gempyreModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -315,7 +315,8 @@
                 {{alert}}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="showTurnAction();">View Turn Action</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="showTurnAction();">View
+                    Turn Action</button>
             </div>
         </div>
     </div>
