@@ -33,6 +33,8 @@ export class PlayComponent implements OnInit {
   // Move to enum (turn actions)    Buy/Reserve Card or Gather Gems
   private ACTION_NONE = 'No Action'
   private ACTION_GATHER_GEMS = 'Gather Gems'
+  private ACTION_BUY_CARD = 'Buy Card'
+  private ACTION_RESERVE_CARD = 'Reserve Card'
 
   private turnAction: string;
 
@@ -41,8 +43,6 @@ export class PlayComponent implements OnInit {
   constructor(public gameService: GameService) { }
 
   ngOnInit(): void {
-    // temp
-    this.startNewTurn()
     this.alert = this.ALERT_NONE
     this.alertType = this.ALERT_TYPE_NONE
     this.gempyreModalButton = (document.querySelector('#gempyreModalButton') as HTMLElement);
@@ -52,6 +52,10 @@ export class PlayComponent implements OnInit {
     this.alertType = alertType;
     this.alert = alert;
     this.gempyreModalButton.click();
+  }
+
+  public showTurnAction(): void {
+    (document.querySelector('#turnActionButton') as HTMLElement).click();
   }
 
   public getCostColor(leadingChar: string) {
@@ -96,6 +100,9 @@ export class PlayComponent implements OnInit {
 
   public getModalBackdropColor() {
     switch (this.alertType) {
+      case this.ALERT_TYPE_NONE: {
+        break;
+      }
       case this.ALERT_TYPE_SYSTEM_ERROR: {
         return {
           'background-color': 'rgba(255, 0, 0, .05)'
@@ -274,6 +281,7 @@ export class PlayComponent implements OnInit {
         || this.gatheredGems.filter((gem) => { return gem == this.gatheredGems[0] }).length != 1
         || this.gatheredGems.length >= 3) {
         console.log('Can only gather two of the same gem or three unique gems in a turn')
+        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_INVALID_GEM_SELECTION);
       } else {
         this.gatheredGems.push(gemType)
       }

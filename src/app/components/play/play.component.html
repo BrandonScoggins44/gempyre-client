@@ -263,7 +263,7 @@
                         </div>
                     </ng-template>
 
-                    <button type="button" class="btn btn-light" placement="top" [ngbPopover]="popContent"
+                    <button type="button" class="btn btn-light" id="turnActionButton" placement="top" [ngbPopover]="popContent"
                         [popoverTitle]="popTitle">
                         Turn Action
                     </button>
@@ -313,6 +313,9 @@
             </div>
             <div class="modal-body">
                 {{alert}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="showTurnAction();">View Turn Action</button>
             </div>
         </div>
     </div>
