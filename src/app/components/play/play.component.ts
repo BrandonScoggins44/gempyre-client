@@ -267,8 +267,6 @@ export class PlayComponent implements OnInit {
       console.log('Performing other action. Cannot gather gems')
       this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
       return
-    } else {
-      this.turnAction = this.ACTION_GATHER_GEMS
     }
 
     // checkGemIsAvailable(gemType)
@@ -288,11 +286,18 @@ export class PlayComponent implements OnInit {
     } else {
       console.log('cannot gather gold')
     }
-    console.log('Gathered Gems', this.gatheredGems)
+
+    if (this.gatheredGems.length > 0) {
+      this.turnAction = this.ACTION_GATHER_GEMS
+    }
   }
 
   public returnGem(gemType: GemType): void {
     this.gatheredGems.splice(this.gatheredGems.findIndex((gem) => { return gem == gemType }), 1)
+
+    if (this.gatheredGems.length == 0) {
+      this.turnAction = this.ACTION_NONE
+    }
   }
 
   public getGatheredGems(): GemType[] {
