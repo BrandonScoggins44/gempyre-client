@@ -2,6 +2,7 @@ import { Component, DoCheck, OnChanges, OnInit } from '@angular/core';
 import { Player } from 'src/app/classes/player';
 import { GemType } from 'src/app/enums/gem-type.enum';
 import { Card } from 'src/app/interfaces/card';
+import { Gem } from 'src/app/interfaces/gem';
 import { GameService } from "../../services/game.service";
 
 @Component({
@@ -20,6 +21,7 @@ export class PlayComponent implements OnInit {
   private ALERT_MUST_TAKE_TURN_ACTION = 'No action has been taken. You must take an action before ending your turn.'
   private ALERT_INVALID_GEM_SELECTION = 'Invalid gem selection. You must gather 3 unique gems, or 2 of the same gem type.'
   private ALERT_OVERLAPPING_ACTIONS = 'Another action is already being performed. (add option to clear actions and continue)'
+  private ALERT_GEM_NOT_AVAILABLE = 'Can not gather more of that gem. Not enough are available in the gem bank.'
 
   public alert: string;
 
@@ -38,7 +40,7 @@ export class PlayComponent implements OnInit {
 
   private turnAction: string;
 
-  private gatheredGems: GemType[];
+  public gatheredGems: GemType[];
 
   constructor(public gameService: GameService) { }
 
@@ -269,10 +271,14 @@ export class PlayComponent implements OnInit {
       return
     }
 
-    // checkGemIsAvailable(gemType)
-
     if (gemType != GemType.GOLD) {
 
+      if (!this.gemIsAvailable(gemType)){
+        console.log('cannot gather ', gemType, '. None are available in the gem bank.')
+        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_GEM_NOT_AVAILABLE);
+        return
+      }
+  
       if (this.gatheredGems.length < 2) {
         this.gatheredGems.push(gemType)
       } else if (this.gatheredGems.includes(gemType)
@@ -292,19 +298,15 @@ export class PlayComponent implements OnInit {
     }
   }
 
+  private gemIsAvailable(gemType: GemType): boolean {
+    return this.gameService.getBankTokens().get(gemType) > 0
+  }
+
   public returnGem(gemType: GemType): void {
     this.gatheredGems.splice(this.gatheredGems.findIndex((gem) => { return gem == gemType }), 1)
 
     if (this.gatheredGems.length == 0) {
       this.turnAction = this.ACTION_NONE
     }
-  }
-
-  public getGatheredGems(): GemType[] {
-    return this.gatheredGems;
-  }
-
-  public setGatheredGems(gatheredGems: GemType[]): void {
-    this.gatheredGems = gatheredGems;
   }
 }
