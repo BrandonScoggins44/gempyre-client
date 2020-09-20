@@ -400,20 +400,22 @@ export class PlayComponent implements OnInit {
   public buyCard(card: Card, showingIndex: number): void {
     console.log("buyCard", card)
 
-    // check that action is available
-    if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD) {
-      console.log('Performing other action. Cannot gather gems')
-      this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
-      return
-    }
+    if (card) {
+      // check that action is available
+      if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD) {
+        console.log('Performing other action. Cannot gather gems')
+        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
+        return
+      }
 
-    if (this.activePlayerCanAffordCard(card)) {
-      this.turnAction = this.ACTION_BUY_CARD
-      this.buyingCard = card
-      this.buyingCardIndex = showingIndex
-    } else {
-      console.log('player', this.activePlayer, 'can not afford card:', card)
-      this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_CARD);
+      if (this.activePlayerCanAffordCard(card)) {
+        this.turnAction = this.ACTION_BUY_CARD
+        this.buyingCard = card
+        this.buyingCardIndex = showingIndex
+      } else {
+        console.log('player', this.activePlayer, 'can not afford card:', card)
+        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_CARD);
+      }
     }
   }
 
