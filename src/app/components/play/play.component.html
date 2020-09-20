@@ -326,9 +326,9 @@
 
                 <div class="row justify-content-around">
                     <div *ngFor="let gem of gemTypes">
-                        <h6 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
-                        <h6 [ngStyle]="getCostColor(gem[0])">
-                            {{gameService.getPlayers()[0].gems.get(getGemTypeFromString(gem))}}</h6>
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">
+                            {{gameService.getPlayers()[0].buyingPower.get(getGemTypeFromString(gem))}}</h6>
                     </div>
                 </div>
 

@@ -82,10 +82,8 @@ export class GameService {
 
     this.bankTokens = new Map<GemType, number>();
 
-    let gemTypes = Object.keys(GemType)
-
-    for (var type of gemTypes) {
-      this.bankTokens.set(GemType[type], this.numberOfPlayers * 2 + 2)
+    for (var type of Object.values(GemType)) {
+      this.bankTokens.set(type, this.numberOfPlayers * 2 + 2)
     }
     console.log('bankTokens', this.bankTokens)
   }

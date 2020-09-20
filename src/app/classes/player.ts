@@ -18,5 +18,6 @@ export class Player {
         this.gems = new Map<GemType, number>();
         Object.keys(GemType).forEach((gemType) => { this.gems.set(GemType[gemType as GemType], 0) });
         this.buyingPower = new Map<GemType, number>();
+        Object.keys(GemType).forEach((gemType) => { this.buyingPower.set(GemType[gemType as GemType], 0) });
     }
 }

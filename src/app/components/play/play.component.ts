@@ -204,6 +204,7 @@ export class PlayComponent implements OnInit {
 
   private startNewTurn(): void {
     console.log('startNewTurn')
+    console.log('player', this.gameService.getPlayers()[this.activePlayer])
     // establish turn variables
     this.turnAction = this.ACTION_NONE
     this.gatheredGems = []
@@ -265,16 +266,25 @@ export class PlayComponent implements OnInit {
     console.log('implementTurnAction')
     console.log('turnAction', this.turnAction)
 
+    let oldPlayerTokens = new Map<GemType, number>();
+    this.gameService.getPlayers()[this.activePlayer].gems.forEach((count, type) => { oldPlayerTokens.set(type, count) })
+
     switch (this.turnAction) {
       case this.ACTION_GATHER_GEMS: {
         for (let gem of this.gatheredGems) {
           this.updateBankTokens(gem, -1)
           this.updatePlayerTokens(gem, 1)
         }
+        this.updatePlayerBuyingPower(oldPlayerTokens)
         break;
       }
       case this.ACTION_BUY_CARD: {
         this.finalizeBuyCard()
+        for (let gem of this.buyingCard.cost.entries()) {
+          this.updateBankTokens(gem[0], gem[1])
+          this.updatePlayerTokens(gem[0], -gem[1])
+        }
+        this.updatePlayerBuyingPower(oldPlayerTokens)
         break;
       }
       default: {
@@ -317,6 +327,21 @@ export class PlayComponent implements OnInit {
   private updatePlayerTokens(gemType: GemType, value: number): void {
     let newValue = this.gameService.getPlayers()[this.activePlayer].gems.get(gemType) + value
     this.gameService.getPlayers()[this.activePlayer].gems.set(gemType, newValue >= 0 ? newValue : 0)
+  }
+
+  private updatePlayerBuyingPower(oldPlayerTokens: Map<GemType, number>): void {
+    for (let gem of Object.values(GemType)) {
+      let oldTokenValue = oldPlayerTokens.get(gem)
+      let newTokenValue = this.gameService.getPlayers()[this.activePlayer].gems.get(gem)
+      let oldCardValue = this.gameService.getPlayers()[this.activePlayer].buyingPower.get(gem) - oldTokenValue;
+      let newCardValue = this.buyingCard ? (this.buyingCard.value == gem ? 1 : 0) : 0
+      let newBuyingPower = oldCardValue + newTokenValue + newCardValue
+      this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, newBuyingPower)
+
+      // dirty bug fix -- card value is being added to bank. remove it here for now
+      if (this.turnAction == this.ACTION_BUY_CARD && this.buyingCard.cost.has(gem) && newCardValue && this.buyingCard.value != gem)
+        this.gameService.getBankTokens().set(gem, this.gameService.getBankTokens().get(gem) - 1)
+    }
   }
 
   public gatherGem(gemType: GemType): void {
@@ -388,9 +413,12 @@ export class PlayComponent implements OnInit {
   }
 
   public activePlayerCanAffordCard(card: Card): boolean {
-    console.log('activePlayerCanAffordCard')
-    return true;
+    for (let cost of card.cost.entries()) {
+      if (this.gameService.getPlayers()[this.activePlayer].buyingPower.get(cost[0]) < cost[1])
+        return false
+    }
 
+    return true;
   }
 
   public returnBuyingCard(): void {
