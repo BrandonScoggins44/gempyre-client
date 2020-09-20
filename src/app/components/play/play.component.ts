@@ -1,8 +1,6 @@
-import { Component, DoCheck, OnChanges, OnInit } from '@angular/core';
-import { Player } from 'src/app/classes/player';
+import { Component, OnInit } from '@angular/core';
 import { GemType } from 'src/app/enums/gem-type.enum';
 import { Card } from 'src/app/interfaces/card';
-import { Gem } from 'src/app/interfaces/gem';
 import { GameService } from "../../services/game.service";
 
 @Component({

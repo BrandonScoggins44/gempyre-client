@@ -48,8 +48,8 @@
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
-                                                    [ngStyle]="getCostColor(nobleCost.type[0])"
-                                                    *ngFor="let nobleCost of noble.cost">
+                                                    [ngStyle]="getCostColor(nobleCost.key[0])"
+                                                    *ngFor="let nobleCost of noble.cost | keyvalue">
                                                     {{nobleCost.value}}</h4>
                                             </div>
                                         </div>
@@ -89,14 +89,15 @@
                                             <div class="row justify-content-around bg-light">
                                                 <h4>{{card.points}}</h4>
                                                 <h4>-</h4>
-                                                <h4 [ngStyle]="getCostColor(card.value.type[0])">
-                                                    {{card.value.value}}
+                                                <h4 [ngStyle]="getCostColor(card.value[0])">
+                                                    1
                                                 </h4>
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
-                                                    [ngStyle]="getCostColor(cardCost.type[0])"
-                                                    *ngFor="let cardCost of card.cost">{{cardCost.value}}</h4>
+                                                    [ngStyle]="getCostColor(cardCost.key[0])"
+                                                    *ngFor="let cardCost of card.cost | keyvalue">{{cardCost.value}}
+                                                </h4>
                                             </div>
                                         </div>
                                     </div>
@@ -137,14 +138,15 @@
                                             <div class="row justify-content-around bg-light">
                                                 <h4>{{card.points}}</h4>
                                                 <h4>-</h4>
-                                                <h4 [ngStyle]="getCostColor(card.value.type[0])">
-                                                    {{card.value.value}}
+                                                <h4 [ngStyle]="getCostColor(card.value[0])">
+                                                    1
                                                 </h4>
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
-                                                    [ngStyle]="getCostColor(cardCost.type[0])"
-                                                    *ngFor="let cardCost of card.cost">{{cardCost.value}}</h4>
+                                                    [ngStyle]="getCostColor(cardCost.key[0])"
+                                                    *ngFor="let cardCost of card.cost | keyvalue">{{cardCost.value}}
+                                                </h4>
                                             </div>
                                         </div>
                                     </div>
@@ -183,14 +185,15 @@
                                             <div class="row justify-content-around bg-light">
                                                 <h4>{{card.points}}</h4>
                                                 <h4>-</h4>
-                                                <h4 [ngStyle]="getCostColor(card.value.type[0])">
-                                                    {{card.value.value}}
+                                                <h4 [ngStyle]="getCostColor(card.value[0])">
+                                                    1
                                                 </h4>
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
-                                                    [ngStyle]="getCostColor(cardCost.type[0])"
-                                                    *ngFor="let cardCost of card.cost">{{cardCost.value}}</h4>
+                                                    [ngStyle]="getCostColor(cardCost.key[0])"
+                                                    *ngFor="let cardCost of card.cost | keyvalue">{{cardCost.value}}
+                                                </h4>
                                             </div>
                                         </div>
                                     </div>
@@ -272,18 +275,20 @@
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t1gem.png" alt="t1">
                                     <div class="card-img-overlay">
-                                        <div class="d-flex flex-column h-100 justify-content-between" *ngIf="buyingCard">
+                                        <div class="d-flex flex-column h-100 justify-content-between"
+                                            *ngIf="buyingCard">
                                             <div class="row justify-content-around bg-light">
                                                 <h4>{{buyingCard.points}}</h4>
                                                 <h4>-</h4>
-                                                <h4 [ngStyle]="getCostColor(buyingCard.value.type[0])">
-                                                    {{buyingCard.value.value}}
+                                                <h4 [ngStyle]="getCostColor(buyingCard.value[0])">
+                                                    1
                                                 </h4>
                                             </div>
                                             <div class="row justify-content-around bg-light">
                                                 <h4 class="card-text text-center"
-                                                    [ngStyle]="getCostColor(cardCost.type[0])"
-                                                    *ngFor="let cardCost of buyingCard.cost">{{cardCost.value}}</h4>
+                                                    [ngStyle]="getCostColor(cardCost.key[0])"
+                                                    *ngFor="let cardCost of buyingCard.cost | keyvalue">
+                                                    {{cardCost.value}}</h4>
                                             </div>
                                         </div>
                                     </div>

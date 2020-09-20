@@ -1,9 +1,9 @@
-import { Gem } from "./gem";
+import { GemType } from '../enums/gem-type.enum';
 
 export interface Card {
     id: number;
     tier: number;       // used for displaying tier while card is held by a player or on the deck
-    value: Gem;
-    cost: Gem[];
+    value: GemType;
+    cost: Map<GemType, number>;
     points: number;
 }

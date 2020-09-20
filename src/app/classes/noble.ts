@@ -1,10 +1,10 @@
+import { GemType } from '../enums/gem-type.enum';
 import { Noble as INoble } from "../interfaces/noble";
-import { Gem } from '../interfaces/gem';
 
 export class Noble implements INoble {
     id: number;
     points: number;
-    cost: Gem[];
+    cost: Map<GemType, number>;
 
     constructor({ id, points, cost }) {
         this.id = id;

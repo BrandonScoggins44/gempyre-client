@@ -6,7 +6,6 @@ import { Tier2Card } from '../classes/tier2-card';
 import { Tier3Card } from '../classes/tier3-card';
 import { GemType } from '../enums/gem-type.enum';
 import { Card } from '../interfaces/card';
-import { Gem } from '../interfaces/gem';
 
 @Injectable({
   providedIn: 'root'
@@ -58,7 +57,7 @@ export class GameService {
 
     for (var i = 0; i < (this.numberOfPlayers < 4 ? 4 : 5); i++) {                                                // get index limit from rule based on number of players
 
-      let cost: Gem[] = [];
+      let cost: Map<GemType, number> = new Map<GemType, number>();
 
       switch (Math.floor(Math.random() * 2)) {                                                                    // 0: 2 4 point costs, 1: 3 3 point costs
         case 0:
@@ -112,10 +111,10 @@ export class GameService {
 
     for (var i = 0; i < muliplier; i++) {                                                                           // number of times each gem type should be made
       for (var j = 0; j < availableTypes.length; j++) {                                                             // create a card for each gem type
-        let cost: Gem[] = [];                                                                                       // clear cost for new card
+        let cost: Map<GemType, number> = new Map<GemType, number>();                                                // clear cost for new card
 
         let id = i * availableTypes.length + j;                                                                     // dynamic sequential id
-        let value = { type: GemType[availableTypes[j]], value: 1 };                                                 // gem value. Each card is worth 1 type of gem
+        let value = GemType[availableTypes[j]];                                                 // gem value. Each card is worth 1 type of gem
         this.generateCost(cost, Math.floor(Math.random() * costRange) + costMin);                                   // generate cost with random value
         let points = Math.floor((Math.random() + pointModifier) * pointRange) + pointMin;                           // randomize points
 
@@ -166,15 +165,15 @@ export class GameService {
     console.log('showing', showing)
   }
 
-  private generateCost(cost: Gem[], value: number, numOfCosts?: number): void {
+  private generateCost(cost: Map<GemType, number>, value: number, numOfCosts?: number): void {
     let availableTypes = Object.keys(GemType)                                                                       // get all gem types from enum
     availableTypes.pop()                                                                                            // remove the last gem type, "GOLD", to genereate cost
 
     if (numOfCosts) {
       for (var i = 0; i < numOfCosts; i++) {
         let index = Math.floor(Math.random() * availableTypes.length);                                              // get random index value from available gem types
-        cost.push({ type: GemType[availableTypes[index]], value });                                                 // create a cost using random type
-        availableTypes = availableTypes.filter(type => GemType[type] !== cost[cost.length - 1].type)                // remove used gem type so it is not repeated
+        cost.set(GemType[availableTypes[index]], value);                                                 // create a cost using random type
+        availableTypes = availableTypes.filter(type => GemType[type] !== GemType[availableTypes[index]])                // remove used gem type so it is not repeated
       }
     } else {
       let numOfCostTypes = Math.floor(Math.random() * 4) + 1;                                                       // cards should have 1-4 different gem type costs
@@ -193,8 +192,8 @@ export class GameService {
         value -= numOfTokens;                                                                                       // reduce the remaining value by the number of gems being assigned to this cost
 
         let index = Math.floor(Math.random() * availableTypes.length);                                              // get random index value from available gem types
-        cost.push({ type: GemType[availableTypes[index]], value: numOfTokens });                                    // create a cost using random type
-        availableTypes = availableTypes.filter(type => GemType[type] !== cost[cost.length - 1].type)                // remove used gem type so it is not repeated
+        cost.set(GemType[availableTypes[index]], numOfTokens);                                    // create a cost using random type
+        availableTypes = availableTypes.filter(type => GemType[type] !== GemType[availableTypes[index]])                // remove used gem type so it is not repeated
       }
     }
   }

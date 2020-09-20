@@ -1,7 +1,7 @@
-import { Gem } from "./gem";
+import { GemType } from '../enums/gem-type.enum';
 
 export interface Noble {
     id: number;
     points: number;
-    cost: Gem[];
+    cost: Map<GemType, number>;
 }

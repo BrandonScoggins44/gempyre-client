@@ -1,7 +1,6 @@
-import { Gem } from '../interfaces/gem';
 import { GemType } from '../enums/gem-type.enum';
 
-export class Token implements Gem {
+export class Token {
     type: GemType;
     value: number;
 
