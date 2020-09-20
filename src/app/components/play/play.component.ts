@@ -154,6 +154,44 @@ export class PlayComponent implements OnInit {
     }
   }
 
+  public getTierCardColor(card: Card) {
+    switch (card.tier) {
+      case 1: {
+        return 'bg-primary'
+      }
+      case 2: {
+        return 'bg-warning'
+      }
+      case 3: {
+        return 'bg-success'
+      }
+      default: {
+        console.log('getTierCardColor() : match not found')
+        this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
+        break;
+      }
+    }
+  }
+
+  public getTierCardImage(tier: number) {
+    switch (tier) {
+      case 1: {
+        return "../../../assets/t1gem.png"
+      }
+      case 2: {
+        return "../../../assets/t2gems.svg"
+      }
+      case 3: {
+        return "../../../assets/t3gems.png"
+      }
+      default: {
+        console.log('getTierCardColor() : match not found')
+        this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
+        break;
+      }
+    }
+  }
+
   // use or remove this
   public getGatheredGemCount(gem: GemType): number {
     return this.gatheredGems.filter((gemType) => { return gemType == gem }).length
@@ -188,6 +226,10 @@ export class PlayComponent implements OnInit {
     console.log('validateTurnAction')
     console.log('turnAction', this.turnAction)
 
+    // console.log('buyingCard', this.buyingCard)
+    // console.log('buyingCardIndex', this.buyingCardIndex)
+    // console.log('gatheredGems', this.gatheredGems)
+
     switch (this.turnAction) {
       case this.ACTION_NONE: {
         this.alert = this.ALERT_MUST_TAKE_TURN_ACTION
@@ -207,7 +249,7 @@ export class PlayComponent implements OnInit {
         }
       }
       case this.ACTION_BUY_CARD: {
-        if (this.buyingCard && this.buyingCardIndex)
+        if (this.buyingCard && this.buyingCardIndex != NaN)
           return true
         else
           return false
