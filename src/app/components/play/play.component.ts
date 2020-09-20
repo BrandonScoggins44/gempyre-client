@@ -21,6 +21,7 @@ export class PlayComponent implements OnInit {
   private ALERT_OVERLAPPING_ACTIONS = 'Another action is already being performed. (add option to clear actions and continue)'
   private ALERT_GEM_NOT_AVAILABLE = 'Can not gather more of that gem. Not enough are available in the gem bank.'
   private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card.'
+  private ALERT_VICTORY = ' has won the game!'
 
   public alert: string;
 
@@ -28,6 +29,7 @@ export class PlayComponent implements OnInit {
   private ALERT_TYPE_NONE = undefined;
   private ALERT_TYPE_SYSTEM_ERROR = 'System Error'
   private ALERT_TYPE_USER_ERROR = 'Invalid Play'
+  private ALERT_TYPE_VICTORY = 'Victory!'
 
   public alertType: string;
 
@@ -217,6 +219,10 @@ export class PlayComponent implements OnInit {
     // validate turn action
     if (this.validateTurnAction()) {
       this.implementTurnAction()
+      if (this.gameService.getPlayers()[this.activePlayer].points >= 15) {
+        this.showGempyreModal(this.ALERT_TYPE_VICTORY, this.gameService.getPlayers()[this.activePlayer].name + this.ALERT_VICTORY + ' (A new game will start automatically for now.)')
+        this.gameService.buildGame()
+      }
       this.startNewTurn()
     } else {
       this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.alert);
@@ -290,6 +296,8 @@ export class PlayComponent implements OnInit {
           }
         }
         this.updatePlayerBuyingPower(oldPlayerTokens)
+        // update player points for bought card
+        this.gameService.getPlayers()[this.activePlayer].points += this.buyingCard.points
         break;
       }
       default: {

@@ -325,7 +325,11 @@
                 <div class="row justify-content-around">{{gameService.getPlayers()[0].name}} (You)</div>
 
                 <div class="row justify-content-around">
-                    <div *ngFor="let gem of gemTypes">
+                    <div class="col border-right border-secondary">
+                        <h6 class="text-center">Points</h6>
+                        <h6 class="text-center">{{gameService.getPlayers()[0].points}}</h6>
+                    </div>
+                    <div class="col" *ngFor="let gem of gemTypes">
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">
                             {{gameService.getPlayers()[0].buyingPower.get(getGemTypeFromString(gem))}}</h6>
