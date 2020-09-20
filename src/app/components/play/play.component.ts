@@ -281,8 +281,13 @@ export class PlayComponent implements OnInit {
       case this.ACTION_BUY_CARD: {
         this.finalizeBuyCard()
         for (let gem of this.buyingCard.cost.entries()) {
-          this.updateBankTokens(gem[0], gem[1])
-          this.updatePlayerTokens(gem[0], -gem[1])
+          let playerCards = this.gameService.getPlayers()[this.activePlayer].buyingPower.get(gem[0]) - oldPlayerTokens.get(gem[0])
+          let tokensBeingUsed = gem[1] - playerCards
+          console.log('tokensBeingUsed - GemType', gem[0], '- count', tokensBeingUsed)
+          if (tokensBeingUsed && tokensBeingUsed > 0) {
+            this.updateBankTokens(gem[0], tokensBeingUsed)
+            this.updatePlayerTokens(gem[0], -tokensBeingUsed)
+          }
         }
         this.updatePlayerBuyingPower(oldPlayerTokens)
         break;
