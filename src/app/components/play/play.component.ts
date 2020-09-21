@@ -22,6 +22,7 @@ export class PlayComponent implements OnInit {
   private ALERT_GEM_NOT_AVAILABLE = 'Can not gather more of that gem. Not enough are available in the gem bank.'
   private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card.'
   private ALERT_VICTORY = ' has won the game!'
+  private ALER_EARNED_NOBLE = ' has impressed a Noble gaining there support (points).'
 
   public alert: string;
 
@@ -30,6 +31,7 @@ export class PlayComponent implements OnInit {
   private ALERT_TYPE_SYSTEM_ERROR = 'System Error'
   private ALERT_TYPE_USER_ERROR = 'Invalid Play'
   private ALERT_TYPE_VICTORY = 'Victory!'
+  private ALERT_TYPE_NOBLE = 'Noble Impressed!'
 
   public alertType: string;
 
@@ -227,7 +229,8 @@ export class PlayComponent implements OnInit {
     // validate turn action
     if (this.validateTurnAction()) {
       this.implementTurnAction()
-      if (this.gameService.getPlayers()[this.activePlayer].points >= 15) {
+      this.checkIfPlayerEarnedNoble()
+      if (this.gameService.getPlayers()[this.activePlayer].points >= 25) {
         this.showGempyreModal(this.ALERT_TYPE_VICTORY, this.gameService.getPlayers()[this.activePlayer].name + this.ALERT_VICTORY + ' (A new game will start automatically for now.)')
         this.gameService.buildGame()
       }
@@ -359,9 +362,32 @@ export class PlayComponent implements OnInit {
       let newBuyingPower = oldCardValue + newTokenValue + newCardValue
       this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, newBuyingPower)
 
-      // dirty bug fix -- card value is being added to bank. remove it here for now
+      // quick bug fix -- card value is being added to bank. remove it here for now
       if (this.turnAction == this.ACTION_BUY_CARD && this.buyingCard.cost.has(gem) && newCardValue && this.buyingCard.value != gem)
         this.gameService.getBankTokens().set(gem, this.gameService.getBankTokens().get(gem) - 1)
+    }
+  }
+
+  private checkIfPlayerEarnedNoble(): void {
+    if (this.gameService.getNobles().length > 0) {
+      for (let noble of this.gameService.getNobles()) {
+        if (noble) {
+          let requirementsMet = true
+          for (let cost of noble.cost.entries()) {
+            if (!((this.gameService.getPlayers()[this.activePlayer].buyingPower.get(cost[0]) - this.gameService.getPlayers()[this.activePlayer].gems.get(cost[0])) >= cost[1])) {
+              requirementsMet = false
+              break
+            }
+          }
+
+          if (requirementsMet) {
+            this.gameService.getPlayers()[this.activePlayer].points += 3
+            this.gameService.getNobles()[this.gameService.getNobles().findIndex((targetNoble) => { return targetNoble == noble })] = undefined
+            this.showGempyreModal(this.ALERT_TYPE_NOBLE, 'Player ' + this.activePlayer + this.ALER_EARNED_NOBLE)
+            break
+          }
+        }
+      }
     }
   }
 
