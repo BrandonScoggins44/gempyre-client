@@ -81,7 +81,7 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT3Showing(); let i = index">
                             <div class="col-sm-2" (click)="buyCard(card, i)">
-                                <div class="card bg-success" [class.pointer]="card" [ngStyle]=cardIsSelected(card)>
+                                <div class="card bg-success" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t3gems.png" alt="t3">
                                     <div class="card-img-overlay">
@@ -129,7 +129,7 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT2Showing(); let i = index">
                             <div class="col-sm-2" (click)="buyCard(card, i)">
-                                <div class="card bg-warning" [class.pointer]="card" [ngStyle]=cardIsSelected(card)>
+                                <div class="card bg-warning" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
                                     <img class="card-img"
                                         style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                                         src="../../../assets/t2gems.svg" alt="t2">
@@ -177,7 +177,7 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT1Showing(); let i = index">
                             <div class="col-sm-2" (click)="buyCard(card, i)">
-                                <div class="card bg-primary" [class.pointer]="card" [ngStyle]=cardIsSelected(card)>
+                                <div class="card bg-primary" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t1gem.png" alt="t1">
                                     <div class="card-img-overlay">
@@ -211,7 +211,7 @@
                 <div *ngFor="let gem of gemTypes">
 
                     <div class="card" [ngClass]=getGemColor(gem[0]) [class.pointer]="gem[0] !== 'G'"
-                        (click)="gatherGem(getGemTypeFromString(gem))">
+                        (click)="gatherGem(getGemTypeFromString(gem))" [ngStyle]=showAsSelected(getGemTypeFromString(gem))>
                         <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                             src="../../../assets/t1gem.png" alt="{{gem}}">
                         <div class="card-img-overlay">

@@ -66,9 +66,22 @@ export class PlayComponent implements OnInit {
     (document.querySelector('#turnActionButton') as HTMLElement).click();
   }
 
-  public cardIsSelected(card: Card) {
-    if (this.buyingCard && this.buyingCard == card)
-      return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+  public showAsSelected(obj: Card | GemType) {
+    if (this.instanceOfGemType(obj)) {
+      if (this.gatheredGems && this.gatheredGems.includes(obj))
+        if (this.gatheredGems.length == 2 && this.gatheredGems[0] == this.gatheredGems[1])
+        return { 'box-shadow': '0 4px 8px 0 rgba(255, 165, 0, 0.8), 0 6px 20px 0 rgba(255, 165, 0, 0.8)' }
+        else
+          return { 'box-shadow': '0 4px 8px 0 rgba(255, 255, 0, 0.8), 0 6px 20px 0 rgba(255, 255, 0, 0.8)' }
+    } else {
+      if (this.buyingCard && this.buyingCard == obj)
+        return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+    }
+
+  }
+
+  private instanceOfGemType(obj: any): obj is GemType {
+    return Object.values(GemType).includes(obj)
   }
 
   public getCostColor(leadingChar: string) {
