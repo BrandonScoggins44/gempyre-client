@@ -211,14 +211,14 @@
                 <div *ngFor="let gem of gemTypes">
 
                     <div class="card" [ngClass]=getGemColor(gem[0]) [class.pointer]="gem[0] !== 'G'"
-                        (click)="gatherGem(getGemTypeFromString(gem))" [ngStyle]=showAsSelected(getGemTypeFromString(gem))>
+                        (click)="gatherGem(gem)" [ngStyle]=showAsSelected(gem)>
                         <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                             src="../../../assets/t1gem.png" alt="{{gem}}">
                         <div class="card-img-overlay">
                             <div class="d-flex flex-column justify-content-center">
                                 <div class="row justify-content-around bg-light">
                                     <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h4>
-                                    <h4>{{gameService.getBankTokens().get(getGemTypeFromString(gem))}}</h4>
+                                    <h4>{{gameService.getBankTokens().get(gem)}}</h4>
                                 </div>
                             </div>
                         </div>
@@ -332,7 +332,7 @@
                     <div class="col" *ngFor="let gem of gemTypes">
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">
-                            {{gameService.getPlayers()[0].buyingPower.get(getGemTypeFromString(gem))}}</h6>
+                            {{gameService.getPlayers()[0].buyingPower.get(gem)}}</h6>
                     </div>
                 </div>
 

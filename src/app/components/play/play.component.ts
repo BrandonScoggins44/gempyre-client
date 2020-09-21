@@ -10,7 +10,7 @@ import { GameService } from "../../services/game.service";
 })
 export class PlayComponent implements OnInit {
 
-  public gemTypes = Object.keys(GemType)
+  public gemTypes = Object.values(GemType)
   private gempyreModalButton: HTMLElement;
 
   // Move to alert enum
@@ -70,7 +70,7 @@ export class PlayComponent implements OnInit {
     if (this.instanceOfGemType(obj)) {
       if (this.gatheredGems && this.gatheredGems.includes(obj))
         if (this.gatheredGems.length == 2 && this.gatheredGems[0] == this.gatheredGems[1])
-        return { 'box-shadow': '0 4px 8px 0 rgba(255, 165, 0, 0.8), 0 6px 20px 0 rgba(255, 165, 0, 0.8)' }
+          return { 'box-shadow': '0 4px 8px 0 rgba(255, 165, 0, 0.8), 0 6px 20px 0 rgba(255, 165, 0, 0.8)' }
         else
           return { 'box-shadow': '0 4px 8px 0 rgba(255, 255, 0, 0.8), 0 6px 20px 0 rgba(255, 255, 0, 0.8)' }
     } else {
@@ -210,16 +210,6 @@ export class PlayComponent implements OnInit {
         break;
       }
     }
-  }
-
-  // use or remove this
-  public getGatheredGemCount(gem: GemType): number {
-    return this.gatheredGems.filter((gemType) => { return gemType == gem }).length
-  }
-
-  // remove or improve this
-  public getGemTypeFromString(gemName: String): GemType {
-    return GemType[gemName as GemType]
   }
 
   private startNewTurn(): void {
