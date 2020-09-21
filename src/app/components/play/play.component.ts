@@ -66,6 +66,11 @@ export class PlayComponent implements OnInit {
     (document.querySelector('#turnActionButton') as HTMLElement).click();
   }
 
+  public cardIsSelected(card: Card) {
+    if (this.buyingCard && this.buyingCard == card)
+      return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+  }
+
   public getCostColor(leadingChar: string) {
     switch (leadingChar) {
       case 'E': {
