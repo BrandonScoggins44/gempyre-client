@@ -80,7 +80,8 @@
                             </div>
                         </div>
                         <ng-container *ngFor="let card of gameService.getT3Showing(); let i = index">
-                            <div class="col-sm-2" (click)="buyCard(card, i)">
+                            <div class="col-sm-2"
+                                (click)="activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)">
                                 <div class="card bg-success" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t3gems.png" alt="t3">
@@ -128,7 +129,8 @@
                             </div>
                         </div>
                         <ng-container *ngFor="let card of gameService.getT2Showing(); let i = index">
-                            <div class="col-sm-2" (click)="buyCard(card, i)">
+                            <div class="col-sm-2"
+                                (click)="activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)">
                                 <div class="card bg-warning" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
                                     <img class="card-img"
                                         style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
@@ -176,7 +178,8 @@
                             </div>
                         </div>
                         <ng-container *ngFor="let card of gameService.getT1Showing(); let i = index">
-                            <div class="col-sm-2" (click)="buyCard(card, i)">
+                            <div class="col-sm-2"
+                                (click)="activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)">
                                 <div class="card bg-primary" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t1gem.png" alt="t1">
@@ -248,7 +251,7 @@
 
                     <ng-template #popContent>
                         <!-- Gathering Gems -->
-                        <div *ngIf="gatheredGems && gatheredGems.length > 0">
+                        <div *ngIf="turnAction == ACTION_GATHER_GEMS">
                             <div *ngFor="let gem of gatheredGems; let i = index">
                                 <div class="row">
                                     <div class="col"></div>
@@ -275,12 +278,12 @@
                         </div>
 
                         <!-- Buying a card -->
-                        <div *ngIf="buyingCard">
+                        <div *ngIf="turnAction == ACTION_BUY_CARD">
 
                             <div class="row">
                                 <div class="col"></div>
                                 <div class="col-8">
-                                    <div class="card pointer bg-primary" [ngClass]=getTierCardColor(buyingCard)
+                                    <div class="card pointer" [ngClass]=getTierCardColor(buyingCard)
                                         (click)="returnBuyingCard();">
                                         <img class="card-img"
                                             style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
@@ -310,6 +313,42 @@
 
                         </div>
 
+                        <!-- Reserving a card -->
+                        <div *ngIf="turnAction == ACTION_RESERVE_CARD">
+
+                            <div class="row">
+                                <div class="col"></div>
+                                <div class="col-8">
+                                    <div class="card pointer" [ngClass]=getTierCardColor(reservingCard)
+                                        (click)="returnReservingCard();">
+                                        <img class="card-img"
+                                            style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
+                                            [src]=getTierCardImage(reservingCard.tier) alt="tier{{reservingCard.tier}}">
+                                        <div class="card-img-overlay">
+                                            <div class="d-flex flex-column h-100 justify-content-between"
+                                                *ngIf="reservingCard">
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4>{{reservingCard.points}}</h4>
+                                                    <h4>-</h4>
+                                                    <h4 [ngStyle]="getCostColor(reservingCard.value[0])">
+                                                        1
+                                                    </h4>
+                                                </div>
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4 class="card-text text-center"
+                                                        [ngStyle]="getCostColor(cardCost.key[0])"
+                                                        *ngFor="let cardCost of reservingCard.cost | keyvalue">
+                                                        {{cardCost.value}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col"></div>
+                            </div>
+
+                        </div>
+
                     </ng-template>
 
                     <button type="button" class="btn btn-light" id="turnActionButton" placement="top"
@@ -328,6 +367,10 @@
                     <div class="col border-right border-secondary">
                         <h6 class="text-center">Points</h6>
                         <h6 class="text-center">{{gameService.getPlayers()[0].points}}</h6>
+                    </div>
+                    <div class="col border-right border-secondary">
+                        <h6 class="text-center">Held</h6>
+                        <h6 class="text-center">{{gameService.getPlayers()[0].heldCards.length}}</h6>
                     </div>
                     <div class="col" *ngFor="let gem of gemTypes">
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
@@ -365,12 +408,21 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body">
                 {{alert}}
             </div>
-            <div class="modal-footer">
+            <!-- footer for non-reserve actions -->
+            <div class="modal-footer" *ngIf="alertType != ALERT_TYPE_RESERVE">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="showTurnAction();">View
                     Turn Action</button>
+            </div>
+            <!-- footer for reserve action -->
+            <div class="modal-footer" *ngIf="alertType == ALERT_TYPE_RESERVE">
+                <button type="button" class="btn btn-secondary col" data-dismiss="modal"
+                    (click)="updateReservingCard()">Yes</button>
+                <div class="col"></div>
+                <button type="button" class="btn btn-secondary col" data-dismiss="modal">No</button>
             </div>
         </div>
     </div>

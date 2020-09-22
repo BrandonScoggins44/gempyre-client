@@ -20,33 +20,39 @@ export class PlayComponent implements OnInit {
   private ALERT_INVALID_GEM_SELECTION = 'Invalid gem selection. You must gather 3 unique gems, or 2 of the same gem type.'
   private ALERT_OVERLAPPING_ACTIONS = 'Another action is already being performed. (add option to clear actions and continue)'
   private ALERT_GEM_NOT_AVAILABLE = 'Can not gather more of that gem. Not enough are available in the gem bank.'
-  private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card.'
+  private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card, and you already have the max number of cards reserved.'
+  private ALERT_RESERVE_CARD = 'You do not have enough gems to purchase that card. Would you like to reserve it instead?'
   private ALERT_VICTORY = ' has won the game!'
   private ALER_EARNED_NOBLE = ' has impressed a Noble gaining there support (points).'
 
   public alert: string;
 
   // Move to alert type enum
-  private ALERT_TYPE_NONE = undefined;
-  private ALERT_TYPE_SYSTEM_ERROR = 'System Error'
-  private ALERT_TYPE_USER_ERROR = 'Invalid Play'
-  private ALERT_TYPE_VICTORY = 'Victory!'
-  private ALERT_TYPE_NOBLE = 'Noble Impressed!'
+  public ALERT_TYPE_NONE = undefined;
+  public ALERT_TYPE_SYSTEM_ERROR = 'System Error'
+  public ALERT_TYPE_USER_ERROR = 'Invalid Play'
+  public ALERT_TYPE_VICTORY = 'Victory!'
+  public ALERT_TYPE_NOBLE = 'Noble Impressed!'
+  public ALERT_TYPE_RESERVE = 'Reserve A Card'
 
   public alertType: string;
 
   // Move to enum (turn actions)    Buy/Reserve Card or Gather Gems
-  private ACTION_NONE = 'No Action'
-  private ACTION_GATHER_GEMS = 'Gather Gems'
-  private ACTION_BUY_CARD = 'Buy Card'
-  private ACTION_RESERVE_CARD = 'Reserve Card'
+  public ACTION_NONE = 'No Action'
+  public ACTION_GATHER_GEMS = 'Gather Gems'
+  public ACTION_BUY_CARD = 'Buy Card'
+  public ACTION_RESERVE_CARD = 'Reserve Card'
 
-  private turnAction: string;
+  public turnAction: string;
   private activePlayer: number;
 
   public gatheredGems: GemType[];
   public buyingCard: Card;
   private buyingCardIndex: number;
+  public reservingCard: Card;
+  private reservingCardIndex: number;
+  public reservingCardTemp: Card;
+  private reservingCardIndexTemp: number;
 
   constructor(public gameService: GameService) { }
 
@@ -77,9 +83,11 @@ export class PlayComponent implements OnInit {
           return { 'box-shadow': '0 4px 8px 0 rgba(255, 255, 0, 0.8), 0 6px 20px 0 rgba(255, 255, 0, 0.8)' }
     } else {
       if (this.buyingCard && this.buyingCard == obj)
-        return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+        if (this.turnAction == this.ACTION_BUY_CARD)
+          return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+        else
+          return { 'box-shadow': '0 4px 8px 0 rgba(0, 0, 255, 0.8), 0 6px 20px 0 rgba(0, 0, 255, 0.8)' }
     }
-
   }
 
   private instanceOfGemType(obj: any): obj is GemType {
@@ -119,7 +127,6 @@ export class PlayComponent implements OnInit {
         }
       }
       default: {
-        console.log('getCostColor() : match not found')
         this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
         break;
       }
@@ -142,7 +149,7 @@ export class PlayComponent implements OnInit {
         }
       }
       default: {
-        console.log('getModalBackdropColor() : match not found')    // don't show modal here since it would be recursive
+        // don't show modal here since it would be recursive
         break;
       }
     }
@@ -169,7 +176,6 @@ export class PlayComponent implements OnInit {
         return 'bg-warning'
       }
       default: {
-        console.log('getGemColor() : match not found')
         this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
         break;
       }
@@ -188,7 +194,6 @@ export class PlayComponent implements OnInit {
         return 'bg-success'
       }
       default: {
-        console.log('getTierCardColor() : match not found')
         this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
         break;
       }
@@ -207,7 +212,6 @@ export class PlayComponent implements OnInit {
         return "../../../assets/t3gems.png"
       }
       default: {
-        console.log('getTierCardColor() : match not found')
         this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
         break;
       }
@@ -221,6 +225,7 @@ export class PlayComponent implements OnInit {
     this.turnAction = this.ACTION_NONE
     this.gatheredGems = []
     this.buyingCard = undefined
+    this.reservingCard = undefined
   }
 
   private endTurn(): void {
@@ -241,8 +246,7 @@ export class PlayComponent implements OnInit {
   }
 
   private validateTurnAction(): boolean {
-    console.log('validateTurnAction')
-    console.log('turnAction', this.turnAction)
+    console.log('validateTurnAction:', this.turnAction)
 
     // console.log('buyingCard', this.buyingCard)
     // console.log('buyingCardIndex', this.buyingCardIndex)
@@ -272,6 +276,12 @@ export class PlayComponent implements OnInit {
         else
           return false
       }
+      case this.ACTION_RESERVE_CARD: {
+        if (this.reservingCard && this.reservingCardIndex != NaN)
+          return true
+        else
+          return false
+      }
       default: {
         this.alert = this.ALERT_MUST_TAKE_TURN_ACTION
         return false
@@ -280,8 +290,7 @@ export class PlayComponent implements OnInit {
   }
 
   private implementTurnAction(): void {
-    console.log('implementTurnAction')
-    console.log('turnAction', this.turnAction)
+    console.log('implementTurnAction:', this.turnAction)
 
     let oldPlayerTokens = new Map<GemType, number>();
     this.gameService.getPlayers()[this.activePlayer].gems.forEach((count, type) => { oldPlayerTokens.set(type, count) })
@@ -296,7 +305,9 @@ export class PlayComponent implements OnInit {
         break;
       }
       case this.ACTION_BUY_CARD: {
-        this.finalizeBuyCard()
+        // update shown cards
+        this.finalizeCollectingCard()
+        // update player and bank gems
         for (let gem of this.buyingCard.cost.entries()) {
           let playerCards = this.gameService.getPlayers()[this.activePlayer].buyingPower.get(gem[0]) - oldPlayerTokens.get(gem[0])
           let tokensBeingUsed = gem[1] - playerCards
@@ -311,6 +322,18 @@ export class PlayComponent implements OnInit {
         this.gameService.getPlayers()[this.activePlayer].points += this.buyingCard.points
         break;
       }
+      case this.ACTION_RESERVE_CARD: {
+        // update shown cards
+        this.finalizeCollectingCard()
+        // update player and bank gems - gain a gold for reserving a card
+        if (this.gameService.getBankTokens().get(GemType.GOLD) > 0) {
+          this.updateBankTokens(GemType.GOLD, -1)
+          this.updatePlayerTokens(GemType.GOLD, 1)
+        }
+        this.gameService.getPlayers()[this.activePlayer].heldCards.push(this.reservingCard)
+        this.updatePlayerBuyingPower(oldPlayerTokens)
+        break;
+      }
       default: {
         this.showGempyreModal(this.ALERT_TYPE_SYSTEM_ERROR, this.ALERT_SYSTEM_ERROR);
         break;
@@ -318,20 +341,23 @@ export class PlayComponent implements OnInit {
     }
   }
 
-  public finalizeBuyCard(): void {
-    console.log('card', this.buyingCard)
-    if (this.buyingCard) {
-      switch (this.buyingCard.tier) {
+  public finalizeCollectingCard(): void {
+    let card = this.turnAction == this.ACTION_BUY_CARD ? this.buyingCard : this.reservingCard
+    let cardIndex = this.turnAction == this.ACTION_BUY_CARD ? this.buyingCardIndex : this.reservingCardIndex
+
+    console.log('finalizeCollectingCard:', card)
+    if (card) {
+      switch (card.tier) {
         case 1: {
-          this.gameService.updateShowing(this.gameService.getT1Deck(), this.gameService.getT1Showing(), this.buyingCardIndex)
+          this.gameService.updateShowing(this.gameService.getT1Deck(), this.gameService.getT1Showing(), cardIndex)
           break;
         }
         case 2: {
-          this.gameService.updateShowing(this.gameService.getT2Deck(), this.gameService.getT2Showing(), this.buyingCardIndex)
+          this.gameService.updateShowing(this.gameService.getT2Deck(), this.gameService.getT2Showing(), cardIndex)
           break;
         }
         case 3: {
-          this.gameService.updateShowing(this.gameService.getT3Deck(), this.gameService.getT3Showing(), this.buyingCardIndex)
+          this.gameService.updateShowing(this.gameService.getT3Deck(), this.gameService.getT3Showing(), cardIndex)
           break;
         }
         default: {
@@ -395,7 +421,6 @@ export class PlayComponent implements OnInit {
 
     // check that action is available
     if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_GATHER_GEMS) {
-      console.log('Performing other action. Cannot gather gems')
       this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
       return
     }
@@ -403,7 +428,6 @@ export class PlayComponent implements OnInit {
     if (gemType != GemType.GOLD) {
       // check that gem is available
       if (!this.gemIsAvailable(gemType)) {
-        console.log('cannot gather ', gemType, '. None are available in the gem bank.')
         this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_GEM_NOT_AVAILABLE);
         return
       }
@@ -413,7 +437,6 @@ export class PlayComponent implements OnInit {
       } else if (this.gatheredGems.includes(gemType)
         || this.gatheredGems.filter((gem) => { return gem == this.gatheredGems[0] }).length != 1
         || this.gatheredGems.length >= 3) {
-        console.log('Can only gather two of the same gem or three unique gems in a turn')
         this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_INVALID_GEM_SELECTION);
       } else {
         this.gatheredGems.push(gemType)
@@ -440,41 +463,72 @@ export class PlayComponent implements OnInit {
   }
 
   public buyCard(card: Card, showingIndex: number): void {
-    console.log("buyCard", card)
-
     if (card) {
       // check that action is available
+      // if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD && this.turnAction != this.ACTION_RESERVE_CARD) {     // use this line if we don't want get Overlapping Actions modal between buying and reserving
       if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD) {
-        console.log('Performing other action. Cannot gather gems')
         this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
         return
       }
 
-      if (this.activePlayerCanAffordCard(card)) {
-        this.turnAction = this.ACTION_BUY_CARD
-        this.buyingCard = card
-        this.buyingCardIndex = showingIndex
-      } else {
-        console.log('player', this.activePlayer, 'can not afford card:', card)
-        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_CARD);
-      }
+      this.turnAction = this.ACTION_BUY_CARD
+      this.buyingCard = card
+      this.buyingCardIndex = showingIndex
     }
+  }
+
+  public reserveCard(card: Card, showingIndex: number): void {
+    if (card) {
+      // check that action is available
+      // if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD && this.turnAction != this.ACTION_RESERVE_CARD) {     // use this line if we don't want get Overlapping Actions modal between buying and reserving
+      if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_RESERVE_CARD) {
+        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
+        return
+      }
+
+      if (this.gameService.getPlayers()[this.activePlayer].heldCards.length < 3) {
+
+        this.reservingCardTemp = card
+        this.reservingCardIndexTemp = showingIndex
+
+        if (!this.reservingCard) {
+          this.reservingCard = card
+          this.reservingCardIndex = showingIndex
+        }
+
+        this.showGempyreModal(this.ALERT_TYPE_RESERVE, this.ALERT_RESERVE_CARD);
+      } else
+        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_CARD);
+    }
+  }
+
+  public updateReservingCard(): void {
+    this.turnAction = this.ACTION_RESERVE_CARD
+
+    this.reservingCard = this.reservingCardTemp
+    this.reservingCardIndex = this.reservingCardIndexTemp
   }
 
   public activePlayerCanAffordCard(card: Card): boolean {
     for (let cost of card.cost.entries()) {
-      if (this.gameService.getPlayers()[this.activePlayer].buyingPower.get(cost[0]) < cost[1])
+      if (this.gameService.getPlayers()[this.activePlayer].buyingPower.get(cost[0]) < cost[1]) {
+        console.log('player', this.activePlayer, 'can not afford card:', card)
         return false
+      }
     }
 
     return true;
   }
 
   public returnBuyingCard(): void {
-    console.log('returnBuyingCard')
-
     this.turnAction = this.ACTION_NONE
     this.buyingCard = undefined
     this.buyingCardIndex = undefined
+  }
+
+  public returnReservingCard(): void {
+    this.turnAction = this.ACTION_NONE
+    this.reservingCard = undefined
+    this.reservingCardIndex = undefined
   }
 }
