@@ -368,10 +368,63 @@
                         <h6 class="text-center">Points</h6>
                         <h6 class="text-center">{{gameService.getPlayers()[0].points}}</h6>
                     </div>
-                    <div class="col border-right border-secondary">
+
+                    <!-- Held Cards -->
+                    <div>
+
+                        <ng-template #popTitleReservedCards>
+                            <div class="text-center">Reserved Cards</div>
+                        </ng-template>
+
+                        <ng-template #popContentReservedCards>
+                            <!-- Show Reserved Cards -->
+                            <div *ngFor="let card of gameService.getPlayers()[activePlayer].heldCards; let i = index">
+                                <div class="row">
+                                    <div class="col"></div>
+                                    <div class="col-8">
+                                        <div class="card pointer" [ngClass]=getTierCardColor(card)
+                                            (click)="console.log('tempBuyCard')">
+                                            <img class="card-img"
+                                                style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
+                                                [src]=getTierCardImage(card.tier) alt="tier{{card.tier}}">
+                                            <div class="card-img-overlay">
+                                                <div class="d-flex flex-column h-100 justify-content-between"
+                                                    *ngIf="card">
+                                                    <div class="row justify-content-around bg-light">
+                                                        <h4>{{card.points}}</h4>
+                                                        <h4>-</h4>
+                                                        <h4 [ngStyle]="getCostColor(card.value[0])">
+                                                            1
+                                                        </h4>
+                                                    </div>
+                                                    <div class="row justify-content-around bg-light">
+                                                        <h4 class="card-text text-center"
+                                                            [ngStyle]="getCostColor(cardCost.key[0])"
+                                                            *ngFor="let cardCost of card.cost | keyvalue">
+                                                            {{cardCost.value}}</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                                <br *ngIf="i + 1 < gameService.getPlayers()[activePlayer].heldCards.length">
+                            </div>
+
+                        </ng-template>
+
+                        <div class="col border-right border-secondary pointer" id="heldCards" placement="top"
+                            [ngbPopover]="popContentReservedCards" [popoverTitle]="popTitleReservedCards">
+                            <h6 class="text-center">Held</h6>
+                            <h6 class="text-center">{{gameService.getPlayers()[0].heldCards.length}}</h6>
+                        </div>
+                    </div>
+                    <!-- <div class="col border-right border-secondary">
                         <h6 class="text-center">Held</h6>
                         <h6 class="text-center">{{gameService.getPlayers()[0].heldCards.length}}</h6>
-                    </div>
+                    </div> -->
+
                     <div class="col" *ngFor="let gem of gemTypes">
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">

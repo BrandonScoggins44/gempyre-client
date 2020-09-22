@@ -82,11 +82,10 @@ export class PlayComponent implements OnInit {
         else
           return { 'box-shadow': '0 4px 8px 0 rgba(255, 255, 0, 0.8), 0 6px 20px 0 rgba(255, 255, 0, 0.8)' }
     } else {
-      if (this.buyingCard && this.buyingCard == obj)
-        if (this.turnAction == this.ACTION_BUY_CARD)
-          return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
-        else
-          return { 'box-shadow': '0 4px 8px 0 rgba(0, 0, 255, 0.8), 0 6px 20px 0 rgba(0, 0, 255, 0.8)' }
+      if (this.turnAction == this.ACTION_BUY_CARD && this.buyingCard && this.buyingCard == obj)
+        return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+      else if (this.turnAction == this.ACTION_RESERVE_CARD && this.reservingCard && this.reservingCard == obj)
+        return { 'box-shadow': '0 4px 8px 0 rgba(0, 0, 255, 0.8), 0 6px 20px 0 rgba(0, 0, 255, 0.8)' }
     }
   }
 
@@ -424,6 +423,8 @@ export class PlayComponent implements OnInit {
       this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
       return
     }
+
+    // check player gem count
 
     if (gemType != GemType.GOLD) {
       // check that gem is available
