@@ -246,7 +246,29 @@
                 <div class="row justify-content-center">
 
                     <ng-template #popTitle>
-                        <div class="text-center">{{turnAction}}</div>
+                        <!-- No need to show clear action option -->
+                        <div class="text-center" *ngIf="turnAction == ACTION_NONE">
+                            {{turnAction}}
+                        </div>
+                        <!-- Show clear action option -->
+                        <div class="row" *ngIf="turnAction != ACTION_NONE">
+                            <div class="col"></div>
+                            <div class="col-6">
+                                <div class="row justify-content-around">
+                                    <div class="text-center">
+                                        {{turnAction}}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="row justify-content-end">
+                                    <div class="text-center pointer text-muted font-weight-light"
+                                        (click)="clearTurnAction()">
+                                        Clear &nbsp;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </ng-template>
 
                     <ng-template #popContent>
@@ -486,6 +508,15 @@
             </div>
             <!-- footer for non-reserve actions -->
             <div class="modal-footer" *ngIf="alertType != ALERT_TYPE_RESERVE">
+                <!-- Yes button for exchange gems -->
+                <button type="button" class="btn btn-secondary col" data-dismiss="modal" (click)="startGemExchange()"
+                    *ngIf="alert == ALERT_MAX_GEMS">Yes</button>
+                <div class="col"></div>
+                <!-- No Button for exchange gems -->
+                <button type="button" class="btn btn-secondary col" data-dismiss="modal"
+                    *ngIf="alert == ALERT_MAX_GEMS">No</button>
+                <div class="col"></div>
+                <!-- View Turn Action button -->
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="showTurnAction();">View
                     Turn Action</button>
             </div>

@@ -24,7 +24,9 @@ export class PlayComponent implements OnInit {
   public ALERT_CAN_NOT_AFFORD_RESERVED_CARD = 'You do not have enough gems to purchase that reserved card.'
   private ALERT_RESERVE_CARD = 'You do not have enough gems to purchase that card. Would you like to reserve it instead?'
   private ALERT_VICTORY = /* Player */ ' has won the game!'
-  private ALER_EARNED_NOBLE = /* Player */ ' has impressed a Noble gaining there support (points).'
+  private ALERT_EARNED_NOBLE = /* Player */ ' has impressed a Noble gaining there support (points).'
+  public ALERT_MAX_GEMS = 'Gathering these gems will cause you to exceed the maximum number of gems a player can hold (10). Would you like to exchange some of the gems you already have for these new ones?'
+  public ALERT_EXCHANGE = 'To exchange gems, select gems you would like to acquire from the gem bank as usual. Then select the gems you want to exhange with them by clicking on the gem in your player pool.'
 
   public alert: string;
 
@@ -35,12 +37,14 @@ export class PlayComponent implements OnInit {
   public ALERT_TYPE_VICTORY = 'Victory!'
   public ALERT_TYPE_NOBLE = 'Noble Impressed!'
   public ALERT_TYPE_RESERVE = 'Reserve A Card'
+  public ALERT_TYPE_EXCHANGE = 'Exchange Gems'
 
   public alertType: string;
 
   // Move to enum (turn actions)    Buy/Reserve Card or Gather Gems
   public ACTION_NONE = 'No Action'
   public ACTION_GATHER_GEMS = 'Gather Gems'
+  public ACTION_EXCHANGE_GEMS = 'Exchange Gems'
   public ACTION_BUY_CARD = 'Buy Card'
   public ACTION_RESERVE_CARD = 'Reserve Card'
 
@@ -264,8 +268,14 @@ export class PlayComponent implements OnInit {
           return false
         }
 
-        if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1])
-          return true
+        if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1]) {
+          if (this.getPlayerGemsTotal() + this.gatheredGems.length <= 10) {
+            return true
+          } else {
+            this.alert = this.ALERT_MAX_GEMS
+            return false
+          }
+        }
         else {
           this.alert = this.ALERT_INVALID_GEM_SELECTION
           return false
@@ -419,7 +429,7 @@ export class PlayComponent implements OnInit {
           if (requirementsMet) {
             this.gameService.getPlayers()[this.activePlayer].points += 3
             this.gameService.getNobles()[this.gameService.getNobles().findIndex((targetNoble) => { return targetNoble == noble })] = undefined
-            this.showGempyreModal(this.ALERT_TYPE_NOBLE, 'Player ' + this.activePlayer + this.ALER_EARNED_NOBLE)
+            this.showGempyreModal(this.ALERT_TYPE_NOBLE, 'Player ' + this.activePlayer + this.ALERT_EARNED_NOBLE)
             break
           }
         }
@@ -472,6 +482,11 @@ export class PlayComponent implements OnInit {
     if (this.gatheredGems.length == 0) {
       this.turnAction = this.ACTION_NONE
     }
+  }
+
+  public startGemExchange(): void {
+    this.turnAction = this.ACTION_EXCHANGE_GEMS
+    this.showGempyreModal(this.ALERT_TYPE_EXCHANGE, this.ALERT_EXCHANGE);
   }
 
   public buyCard(card: Card, showingIndex?: number): void {
@@ -543,6 +558,35 @@ export class PlayComponent implements OnInit {
     this.turnAction = this.ACTION_NONE
     this.reservingCard = undefined
     this.reservingCardIndex = undefined
+  }
+
+  public clearTurnAction(): void {
+    switch (this.turnAction) {
+      case this.ACTION_GATHER_GEMS: {
+        this.gatheredGems = []
+        this.turnAction = this.ACTION_NONE
+        break;
+      }
+      case this.ACTION_BUY_CARD: {
+        this.returnBuyingCard()
+        break
+      }
+      case this.ACTION_RESERVE_CARD: {
+        this.returnReservingCard()
+        break
+      }
+      case this.ACTION_EXCHANGE_GEMS: {
+        this.gatheredGems = []
+        // this.exchangingGems = []
+        this.turnAction = this.ACTION_NONE
+        break
+      }
+      default: {
+        this.turnAction = this.ACTION_NONE
+        break;
+      }
+    }
+    this.turnAction = this.ACTION_NONE
   }
 
   public getPlayerCardsByGemType(gem: GemType): number {
