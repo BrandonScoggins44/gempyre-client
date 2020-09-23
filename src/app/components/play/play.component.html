@@ -507,7 +507,7 @@
                 {{alert}}
             </div>
             <!-- footer for non-reserve actions -->
-            <div class="modal-footer" *ngIf="alertType != ALERT_TYPE_RESERVE">
+            <div class="modal-footer" *ngIf="alertType != ALERT_TYPE_RESERVE && alert != ALERT_CAN_NOT_AFFORD_RESERVED_CARD && alert != ALERT_MUST_TAKE_TURN_ACTION">
                 <!-- Yes button for exchange gems -->
                 <button type="button" class="btn btn-secondary col" data-dismiss="modal" (click)="startGemExchange()"
                     *ngIf="alert == ALERT_MAX_GEMS">Yes</button>
