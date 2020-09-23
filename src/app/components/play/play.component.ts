@@ -21,9 +21,10 @@ export class PlayComponent implements OnInit {
   private ALERT_OVERLAPPING_ACTIONS = 'Another action is already being performed. (add option to clear actions and continue)'
   private ALERT_GEM_NOT_AVAILABLE = 'Can not gather more of that gem. Not enough are available in the gem bank.'
   private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card, and you already have the max number of cards reserved.'
+  public ALERT_CAN_NOT_AFFORD_RESERVED_CARD = 'You do not have enough gems to purchase that reserved card.'
   private ALERT_RESERVE_CARD = 'You do not have enough gems to purchase that card. Would you like to reserve it instead?'
-  private ALERT_VICTORY = ' has won the game!'
-  private ALER_EARNED_NOBLE = ' has impressed a Noble gaining there support (points).'
+  private ALERT_VICTORY = /* Player */ ' has won the game!'
+  private ALER_EARNED_NOBLE = /* Player */ ' has impressed a Noble gaining there support (points).'
 
   public alert: string;
 
@@ -270,7 +271,7 @@ export class PlayComponent implements OnInit {
         }
       }
       case this.ACTION_BUY_CARD: {
-        if (this.buyingCard && this.buyingCardIndex != NaN)
+        if (this.buyingCard)
           return true
         else
           return false
@@ -304,8 +305,17 @@ export class PlayComponent implements OnInit {
         break;
       }
       case this.ACTION_BUY_CARD: {
-        // update shown cards
-        this.finalizeCollectingCard()
+        console.log('buycard', this.buyingCard)
+        console.log('buyindex', this.buyingCardIndex)
+        // do not update shown cards if buying a reserved card
+        if (this.buyingCardIndex != undefined) {
+          // update shown cards
+          this.finalizeCollectingCard()
+        } else {
+          // remove buyingCard from player.heldCards
+          console.log('remove held card')
+          this.gameService.getPlayers()[this.activePlayer].heldCards.splice(this.gameService.getPlayers()[this.activePlayer].heldCards.findIndex((card) => { return card == this.buyingCard }), 1)
+        }
         // update player and bank gems
         for (let gem of this.buyingCard.cost.entries()) {
           let playerCards = this.gameService.getPlayers()[this.activePlayer].buyingPower.get(gem[0]) - oldPlayerTokens.get(gem[0])
@@ -463,7 +473,7 @@ export class PlayComponent implements OnInit {
     }
   }
 
-  public buyCard(card: Card, showingIndex: number): void {
+  public buyCard(card: Card, showingIndex?: number): void {
     if (card) {
       // check that action is available
       // if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD && this.turnAction != this.ACTION_RESERVE_CARD) {     // use this line if we don't want get Overlapping Actions modal between buying and reserving
@@ -471,7 +481,8 @@ export class PlayComponent implements OnInit {
         this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
         return
       }
-
+      console.log('buycard', card)
+      console.log('buyindex', showingIndex)
       this.turnAction = this.ACTION_BUY_CARD
       this.buyingCard = card
       this.buyingCardIndex = showingIndex

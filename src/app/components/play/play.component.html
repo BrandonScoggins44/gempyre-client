@@ -383,7 +383,8 @@
                                     <div class="col"></div>
                                     <div class="col-8">
                                         <div class="card pointer" [ngClass]=getTierCardColor(card)
-                                            (click)="console.log('tempBuyCard')">
+                                            (click)="activePlayerCanAffordCard(card) ? buyCard(card) : showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_RESERVED_CARD)"
+                                            [ngStyle]=showAsSelected(card)>
                                             <img class="card-img"
                                                 style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                                                 [src]=getTierCardImage(card.tier) alt="tier{{card.tier}}">
