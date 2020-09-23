@@ -556,4 +556,20 @@ export class PlayComponent implements OnInit {
   public getPlayerBuyingPowerByGemType(gem: GemType): number {
     return this.gameService.getPlayers()[this.activePlayer].buyingPower.get(gem)
   }
+
+  public getPlayerCardsTotal(): number {
+    let playerCardCount = 0
+    for (let gemType of Object.values(GemType)) {
+      playerCardCount += this.getPlayerCardsByGemType(gemType)
+    }
+    return playerCardCount
+  }
+
+  public getPlayerGemsTotal(): number {
+    let playerGemCount = 0
+    for (let gemType of Object.values(GemType)) {
+      playerGemCount += this.getPlayerGemsByGemType(gemType)
+    }
+    return playerGemCount
+  }
 }
