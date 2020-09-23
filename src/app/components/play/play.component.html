@@ -361,9 +361,27 @@
             <div class="col-1"></div>
             <!-- Player 1 -->
             <div class="col-4 bg-light" style="height: 9vh;">
-                <div class="row justify-content-around">{{gameService.getPlayers()[0].name}} (You)</div>
+                <div class="row justify-content-around">
+                    <div class="col"></div>
+                    <div class="col">
+                        <!-- Player Name -->
+                        <div class="row justify-content-around">
+                            {{gameService.getPlayers()[0].name}} (You)
+                        </div>
+                    </div>
+                    <div class="col">
+                        <!-- Toggle Resource Details -->
+                        <div class="row justify-content-end">
+                            <div class="pointer" [class.text-muted]="showBuyingPowerAsTotal" [class.font-weight-light]="showBuyingPowerAsTotal"
+                                (click)="showBuyingPowerAsTotal = !showBuyingPowerAsTotal">
+                                Gems / Cards &nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="row justify-content-around">
+                    <!-- Player points -->
                     <div class="col border-right border-secondary">
                         <h6 class="text-center">Points</h6>
                         <h6 class="text-center">{{gameService.getPlayers()[0].points}}</h6>
@@ -421,15 +439,16 @@
                             <h6 class="text-center">{{gameService.getPlayers()[0].heldCards.length}}</h6>
                         </div>
                     </div>
-                    <!-- <div class="col border-right border-secondary">
-                        <h6 class="text-center">Held</h6>
-                        <h6 class="text-center">{{gameService.getPlayers()[0].heldCards.length}}</h6>
-                    </div> -->
-
+                    <!-- Player buying power -->
                     <div class="col" *ngFor="let gem of gemTypes">
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
-                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">
-                            {{gameService.getPlayers()[0].buyingPower.get(gem)}}</h6>
+                        <!-- total -->
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" *ngIf="showBuyingPowerAsTotal">
+                            {{getPlayerBuyingPowerByGemType(gem)}}</h6>
+                        <!-- gem - card breakdown -->
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" *ngIf="!showBuyingPowerAsTotal">
+                            {{getPlayerGemsByGemType(gem)}} -
+                            {{getPlayerCardsByGemType(gem)}}</h6>
                     </div>
                 </div>
 
