@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { GemType } from 'src/app/enums/gem-type.enum';
 import { Card } from 'src/app/interfaces/card';
 import { GameService } from "../../services/game.service";
+import { AiService } from "../../services/ai.service";
+import { Player } from 'src/app/classes/player';
+import { isNumber } from '@ng-bootstrap/ng-bootstrap/util/util';
 
 @Component({
   selector: 'app-play',
@@ -71,14 +74,14 @@ export class PlayComponent implements OnInit {
   public reservingCardTemp: Card;
   private reservingCardIndexTemp: number;
 
-  constructor(public gameService: GameService) { }
+  constructor(public gameService: GameService, public aiService: AiService) { }
 
   ngOnInit(): void {
     this.alert = this.ALERT_NONE
     this.alertType = this.ALERT_TYPE_NONE
     this.gempyreModalButton = (document.querySelector('#gempyreModalButton') as HTMLElement);
 
-    this.activePlayer = 0
+    this.activePlayer = -1
   }
 
   public showGempyreModal(alertType: string, alert: string): void {
@@ -91,13 +94,15 @@ export class PlayComponent implements OnInit {
     (document.querySelector('#turnActionButton') as HTMLElement).click();
   }
 
-  public showAsSelected(obj: Card | GemType) {
+  public showAsSelected(obj: Card | GemType | number) {
     if (this.instanceOfGemType(obj)) {
       if (this.gatheredGems && this.gatheredGems.includes(obj))
         if (this.gatheredGems.length == 2 && this.gatheredGems[0] == this.gatheredGems[1])
           return { 'box-shadow': '0 4px 8px 0 rgba(255, 165, 0, 0.8), 0 6px 20px 0 rgba(255, 165, 0, 0.8)' }
         else
           return { 'box-shadow': '0 4px 8px 0 rgba(255, 255, 0, 0.8), 0 6px 20px 0 rgba(255, 255, 0, 0.8)' }
+    } else if (Number.isInteger(obj) && obj == this.activePlayer) {
+      return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
     } else {
       if (this.turnAction == this.ACTION_BUY_CARD && this.buyingCard && this.buyingCard == obj)
         if (this.spendingGold.length == 0)
@@ -239,6 +244,11 @@ export class PlayComponent implements OnInit {
 
   private startNewTurn(): void {
     console.log('startNewTurn')
+    if (this.activePlayer == -1)
+      this.activePlayer = 0
+    else {
+      this.activePlayer = this.activePlayer == this.gameService.getNumberOfPlayers() - 1 ? 0 : this.activePlayer + 1
+    }
     console.log('player', this.gameService.getPlayers()[this.activePlayer])
     // establish turn variables
     this.turnAction = this.ACTION_NONE
@@ -281,7 +291,7 @@ export class PlayComponent implements OnInit {
         }
 
         if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1]) {
-          if (this.getPlayerGemsTotal() + this.gatheredGems.length <= 10) {
+          if (this.getPlayerGemsTotal(this.activePlayer) + this.gatheredGems.length <= 10) {
             return true
           } else {
             this.alert = this.ALERT_MAX_GEMS
@@ -300,7 +310,7 @@ export class PlayComponent implements OnInit {
         }
 
         if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1]) {
-          if (this.getPlayerGemsTotal() + this.gatheredGems.length == 10) {
+          if (this.getPlayerGemsTotal(this.activePlayer) + this.gatheredGems.length == 10) {
             return true
           } else {
             this.alert = this.ALERT_EXCHANGE_CRITERIA_NOT_MET
@@ -390,7 +400,7 @@ export class PlayComponent implements OnInit {
 
         // update player and bank gems
         for (let gem of this.buyingCard.cost.entries()) {
-          let playerCards = this.getPlayerBuyingPowerByGemType(gem[0]) - oldPlayerTokens.get(gem[0])
+          let playerCards = this.getPlayerBuyingPowerByGemType(this.activePlayer, gem[0]) - oldPlayerTokens.get(gem[0])
           let tokensBeingUsed = gem[1] - playerCards - goldSpent.get(gem[0])
           console.log('tokensBeingUsed - GemType', gem[0], '- count', tokensBeingUsed)
           console.log('goldBeingUsed - GemType', gem[0], '- count', goldSpent.get(gem[0]))
@@ -463,15 +473,15 @@ export class PlayComponent implements OnInit {
   }
 
   private updatePlayerTokens(gemType: GemType, value: number): void {
-    let newValue = this.getPlayerGemsByGemType(gemType) + value
+    let newValue = this.getPlayerGemsByGemType(this.activePlayer, gemType) + value
     this.gameService.getPlayers()[this.activePlayer].gems.set(gemType, newValue >= 0 ? newValue : 0)
   }
 
   private updatePlayerBuyingPower(oldPlayerTokens: Map<GemType, number>): void {
     for (let gem of Object.values(GemType)) {
       let oldTokenValue = oldPlayerTokens.get(gem)
-      let newTokenValue = this.getPlayerGemsByGemType(gem)
-      let oldCardValue = this.getPlayerBuyingPowerByGemType(gem) - oldTokenValue;
+      let newTokenValue = this.getPlayerGemsByGemType(this.activePlayer, gem)
+      let oldCardValue = this.getPlayerBuyingPowerByGemType(this.activePlayer, gem) - oldTokenValue;
       let newCardValue = this.buyingCard ? (this.buyingCard.value == gem ? 1 : 0) : 0
       let newBuyingPower = oldCardValue + newTokenValue + newCardValue
       this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, newBuyingPower)
@@ -488,7 +498,7 @@ export class PlayComponent implements OnInit {
         if (noble) {
           let requirementsMet = true
           for (let cost of noble.cost.entries()) {
-            if (!((this.getPlayerBuyingPowerByGemType(cost[0]) - this.getPlayerGemsByGemType(cost[0])) >= cost[1])) {
+            if (!((this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) - this.getPlayerGemsByGemType(this.activePlayer, cost[0])) >= cost[1])) {
               requirementsMet = false
               break
             }
@@ -552,10 +562,10 @@ export class PlayComponent implements OnInit {
 
   public exchangeGem(gem: GemType): void {
     if (this.exchangingGems.length < this.gatheredGems.length) {
-      if (this.getPlayerGemsByGemType(gem) != undefined && this.getPlayerGemsByGemType(gem) > 0) {
+      if (this.getPlayerGemsByGemType(this.activePlayer, gem) != undefined && this.getPlayerGemsByGemType(this.activePlayer, gem) > 0) {
         this.exchangingGems.push(gem)
         this.updatePlayerTokens(gem, -1)
-        this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(gem) - 1)
+        this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(this.activePlayer, gem) - 1)
       } else {
         this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_NO_GEM_TO_EXCHANGE)
       }
@@ -567,7 +577,7 @@ export class PlayComponent implements OnInit {
   public returnExchangingGem(returnGem: GemType): void {
 
     this.updatePlayerTokens(returnGem, 1)
-    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(returnGem, this.getPlayerBuyingPowerByGemType(returnGem) + 1)
+    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(returnGem, this.getPlayerBuyingPowerByGemType(this.activePlayer, returnGem) + 1)
 
     this.exchangingGems.splice(this.exchangingGems.findIndex((gem) => { return gem == returnGem }), 1)
   }
@@ -618,11 +628,7 @@ export class PlayComponent implements OnInit {
   }
 
   public confirmReserveCard(): void {
-    console.log('confirmReserveCard')
-    console.log('getPlayerGemsTotal', this.getPlayerGemsTotal())
-    console.log('available gold', this.gameService.getBankTokens().get(GemType.GOLD))
-    //temp
-    if (this.getPlayerGemsTotal() < 10 && this.gemIsAvailable(GemType.GOLD)) {
+    if (this.getPlayerGemsTotal(this.activePlayer) < 10 && this.gemIsAvailable(GemType.GOLD)) {
       console.log('reserve card no issues')
       this.gempyreModalButton.click()
       this.gatheredGems.push(GemType.GOLD)
@@ -631,8 +637,7 @@ export class PlayComponent implements OnInit {
       console.log('reserve card with 0 gold')
       this.alertType = this.ALERT_TYPE_RESERVE
       this.alert = this.ALERT_NO_GOLD_IN_BANK
-      //temp
-    } else if (this.getPlayerGemsTotal() == 10) {
+    } else if (this.getPlayerGemsTotal(this.activePlayer) == 10) {
       console.log('reserve card with max gems')
       this.alertType = this.ALERT_TYPE_RESERVE
       this.alert = this.ALERT_RESERVE_WITH_MAX_GEMS
@@ -658,14 +663,14 @@ export class PlayComponent implements OnInit {
   }
 
   public activePlayerCanAffordCard(card: Card): boolean {
-    let playerGold = this.getPlayerBuyingPowerByGemType(GemType.GOLD)
+    let playerGold = this.getPlayerBuyingPowerByGemType(this.activePlayer, GemType.GOLD)
 
     while (this.spendingGold.length > 0) {
       this.returnGoldSpentAsGem(this.spendingGold[0])
     }
 
     for (let cost of card.cost.entries()) {
-      if (this.getPlayerBuyingPowerByGemType(cost[0]) + playerGold < cost[1]) {
+      if (this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) + playerGold < cost[1]) {
         console.log('player', this.activePlayer, 'can not afford card:', card)
 
         while (this.spendingGold.length > 0) {
@@ -673,8 +678,8 @@ export class PlayComponent implements OnInit {
         }
 
         return false
-      } else if (this.getPlayerBuyingPowerByGemType(cost[0]) < cost[1] && this.getPlayerBuyingPowerByGemType(cost[0]) + playerGold >= cost[1]) {
-        let diff = cost[1] - this.getPlayerBuyingPowerByGemType(cost[0])
+      } else if (this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) < cost[1] && this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) + playerGold >= cost[1]) {
+        let diff = cost[1] - this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0])
         playerGold -= diff
         while (diff > 0) {
           this.spendGoldAsGem(cost[0])
@@ -690,7 +695,7 @@ export class PlayComponent implements OnInit {
 
     if (this.spendingGold.length == 0) {
       for (let cost of this.buyingCard.cost.entries()) {
-        if (this.getPlayerBuyingPowerByGemType(cost[0]) < cost[1])
+        if (this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) < cost[1])
           return false
       }
     } else {
@@ -701,17 +706,17 @@ export class PlayComponent implements OnInit {
       for (let cost of this.buyingCard.cost.entries()) {
         if (goldSpent.get(cost[0]) > 0) {
           // if spending gold, make sure tokens are being used. i.e. Player should not be able to meet the cost of a gem type with only cards
-          if (this.getPlayerCardsByGemType(cost[0]) >= cost[1]) {
+          if (this.getPlayerCardsByGemType(this.activePlayer, cost[0]) >= cost[1]) {
             return false
             // if spending gold, make sure player is not over spending gold
-          } else if (this.getPlayerCardsByGemType(cost[0]) + goldSpent.get(cost[0]) > cost[1]) {
+          } else if (this.getPlayerCardsByGemType(this.activePlayer, cost[0]) + goldSpent.get(cost[0]) > cost[1]) {
             return false
             // if spending gold, make sure player has spent enough gold
-          } else if (this.getPlayerBuyingPowerByGemType(cost[0]) + goldSpent.get(cost[0]) < cost[1]) {
+          } else if (this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) + goldSpent.get(cost[0]) < cost[1]) {
             return false
           }
         } else {
-          if (this.getPlayerBuyingPowerByGemType(cost[0]) < cost[1])
+          if (this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) < cost[1])
             return false
         }
       }
@@ -728,14 +733,14 @@ export class PlayComponent implements OnInit {
     this.spendingGold.push(gem)
 
     this.updatePlayerTokens(GemType.GOLD, -1)
-    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(GemType.GOLD, this.getPlayerBuyingPowerByGemType(GemType.GOLD) - 1)
+    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(GemType.GOLD, this.getPlayerBuyingPowerByGemType(this.activePlayer, GemType.GOLD) - 1)
   }
 
   public returnGoldSpentAsGem(returningGem: GemType): void {
     this.spendingGold.splice(this.spendingGold.findIndex((gem) => { return gem == returningGem }), 1)
 
     this.updatePlayerTokens(GemType.GOLD, 1)
-    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(GemType.GOLD, this.getPlayerBuyingPowerByGemType(GemType.GOLD) + 1)
+    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(GemType.GOLD, this.getPlayerBuyingPowerByGemType(this.activePlayer, GemType.GOLD) + 1)
   }
 
   public returnBuyingCard(): void {
@@ -774,7 +779,7 @@ export class PlayComponent implements OnInit {
         this.gatheredGems = []
         this.exchangingGems.forEach((gem) => {
           this.updatePlayerTokens(gem, 1)
-          this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(gem) + 1)
+          this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(this.activePlayer, gem) + 1)
         })
         this.exchangingGems = []
         this.turnAction = this.ACTION_NONE
@@ -785,7 +790,7 @@ export class PlayComponent implements OnInit {
         this.gatheredGems = []
         this.exchangingGems.forEach((gem) => {
           this.updatePlayerTokens(gem, 1)
-          this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(gem) + 1)
+          this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(this.activePlayer, gem) + 1)
         })
         this.exchangingGems = []
         this.turnAction = this.ACTION_NONE
@@ -799,30 +804,30 @@ export class PlayComponent implements OnInit {
     this.turnAction = this.ACTION_NONE
   }
 
-  public getPlayerCardsByGemType(gem: GemType): number {
-    return this.getPlayerBuyingPowerByGemType(gem) - this.getPlayerGemsByGemType(gem)
+  public getPlayerCardsByGemType(player: number, gem: GemType): number {
+    return this.getPlayerBuyingPowerByGemType(player, gem) - this.getPlayerGemsByGemType(player, gem)
   }
 
-  public getPlayerGemsByGemType(gem: GemType): number {
-    return this.gameService.getPlayers()[this.activePlayer].gems.get(gem)
+  public getPlayerGemsByGemType(player: number, gem: GemType): number {
+    return this.gameService.getPlayers()[player].gems.get(gem)
   }
 
-  public getPlayerBuyingPowerByGemType(gem: GemType): number {
-    return this.gameService.getPlayers()[this.activePlayer].buyingPower.get(gem)
+  public getPlayerBuyingPowerByGemType(player: number, gem: GemType): number {
+    return this.gameService.getPlayers()[player].buyingPower.get(gem)
   }
 
-  public getPlayerCardsTotal(): number {
+  public getPlayerCardsTotal(player: number): number {
     let playerCardCount = 0
     for (let gemType of Object.values(GemType)) {
-      playerCardCount += this.getPlayerCardsByGemType(gemType)
+      playerCardCount += this.getPlayerCardsByGemType(player, gemType)
     }
     return playerCardCount
   }
 
-  public getPlayerGemsTotal(): number {
+  public getPlayerGemsTotal(player: number): number {
     let playerGemCount = 0
     for (let gemType of Object.values(GemType)) {
-      playerGemCount += this.getPlayerGemsByGemType(gemType)
+      playerGemCount += this.getPlayerGemsByGemType(player, gemType)
     }
     return playerGemCount
   }

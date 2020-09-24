@@ -8,9 +8,10 @@ export class Player {
     heldCards: Card[];
     gems: Map<GemType, number>;
     buyingPower: Map<GemType, number>;
+    isAi: boolean;
 
 
-    constructor({ id, name }) {
+    constructor({ id, name, isAi }) {
         this.id = id;
         this.name = name;
         this.points = 0;
@@ -19,5 +20,6 @@ export class Player {
         Object.keys(GemType).forEach((gemType) => { this.gems.set(GemType[gemType as GemType], 0) });
         this.buyingPower = new Map<GemType, number>();
         Object.keys(GemType).forEach((gemType) => { this.buyingPower.set(GemType[gemType as GemType], 0) });
+        this.isAi = isAi;
     }
 }

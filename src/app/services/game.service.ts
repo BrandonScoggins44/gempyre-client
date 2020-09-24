@@ -94,7 +94,10 @@ export class GameService {
     this.players = [];                                                                                            // clear players for new game
 
     for (let i = 0; i < this.numberOfPlayers; i++) {
-      this.players.push(new Player({ id: i, name: `Player ${i + 1}` }))
+      if (i == 0)
+        this.players.push(new Player({ id: i, name: `Player ${i + 1}`, isAi: false }))
+      else
+        this.players.push(new Player({ id: i, name: `Player ${i + 1}`, isAi: true }))
     }
     console.log('players', this.players)
   }
