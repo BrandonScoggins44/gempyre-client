@@ -333,6 +333,44 @@
                                 <div class="col"></div>
                             </div>
 
+                            <!-- Spending Gold -->
+                            <div *ngIf="spendingGold.length > 0">
+                                <hr class="mb-1 mt-2">
+                                <div class="row mb-2">
+                                    <div class="col"></div>
+                                    <div class="col-6">
+                                        <div class="text-center text-nowrap mb-1 border-secondary border-bottom">
+                                            Spending Gold As..
+                                        </div>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                                <div *ngFor="let gem of spendingGold; let i = index">
+                                    <div class="row">
+                                        <div class="col"></div>
+                                        <div class="col-8">
+                                            <div class="card pointer" [ngClass]=getGemColor(gem[0])
+                                                (click)="returnGoldSpentAsGem(gem)">
+                                                <img class="card-img"
+                                                    style="object-fit: cover; height: 9vh; opacity: .5;"
+                                                    src="../../../assets/t1gem.png" alt="{{gem}}">
+                                                <div class="card-img-overlay">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <div class="row justify-content-around bg-light">
+                                                            <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}
+                                                            </h4>
+                                                            <h4>1</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col"></div>
+                                    </div>
+                                    <br *ngIf="i + 1 < spendingGold.length">
+                                </div>
+                            </div>
+
                         </div>
 
                         <!-- Reserving a card -->
@@ -371,6 +409,7 @@
 
                             <!-- Gathered Gold -->
                             <div *ngIf="gatheredGems.length > 0 && turnAction == ACTION_RESERVE_CARD">
+                                <hr class="mb-1 mt-2">
                                 <div class="row mb-2">
                                     <div class="col"></div>
                                     <div class="col-6">
@@ -409,6 +448,7 @@
 
                         <!-- Exchanging Gems -->
                         <div *ngIf="turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE">
+                            <hr class="mb-1 mt-2" *ngIf="turnAction == ACTION_RESERVE_EXCHANGE">
                             <!-- Gathered Gems -->
                             <div class="row mb-2">
                                 <div class="col"></div>
@@ -568,19 +608,24 @@
                     </div>
                     <!-- Player buying power -->
                     <div class="col"
-                        [class.pointer]="turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE"
+                        [class.pointer]="turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE || (turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(gem) > 0)"
                         *ngFor="let gem of gemTypes">
                         <!-- Gem Title -->
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
-                        <!-- total -->
-                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" (click)="exchangeGem(gem)"
-                            *ngIf="showBuyingPowerAsTotal">
-                            {{getPlayerBuyingPowerByGemType(gem)}}</h6>
-                        <!-- gem - card breakdown -->
-                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" (click)="exchangeGem(gem)"
-                            *ngIf="!showBuyingPowerAsTotal">
-                            {{getPlayerGemsByGemType(gem)}} -
-                            {{getPlayerCardsByGemType(gem)}}</h6>
+                        <!-- Gem display -->
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])"
+                            (click)="(turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE) ? exchangeGem(gem) : 
+                        ((turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(gem) > 0) ? startSpendingGold() : {})">
+                            <!-- total -->
+                            <div *ngIf="showBuyingPowerAsTotal">
+                                {{getPlayerBuyingPowerByGemType(gem)}}
+                            </div>
+                            <!-- gem - card breakdown -->
+                            <div *ngIf="!showBuyingPowerAsTotal">
+                                {{getPlayerGemsByGemType(gem)}} -
+                                {{getPlayerCardsByGemType(gem)}}
+                            </div>
+                        </h6>
                     </div>
                 </div>
 
@@ -616,6 +661,31 @@
 
             <div class="modal-body">
                 {{alert}}
+            </div>
+            <!-- footer spending gold -->
+            <div class="modal-footer"
+                *ngIf="alertType == ALERT_TYPE_EXCHANGE && alert == ALERT_SPEND_GOLD && turnAction == ACTION_BUY_CARD">
+                <!-- Cost on Buying Card -->
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col" *ngFor="let cost of buyingCard.cost | keyvalue">
+                            <div class="card pointer" [ngClass]=getGemColor(cost.key[0])
+                                (click)="spendGoldAsGem(cost.key)" data-dismiss="modal">
+                                <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
+                                    src="../../../assets/t1gem.png" alt="{{cost.key}}">
+                                <div class="card-img-overlay">
+                                    <div class="d-flex flex-column justify-content-center">
+                                        <div class="row justify-content-around bg-light">
+                                            <h4 [ngStyle]="getCostColor(cost.key[0])">{{cost.key.substring(0, 3)}}
+                                            </h4>
+                                            <h4>1</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- footer for non-reserve actions -->
             <div class="modal-footer"

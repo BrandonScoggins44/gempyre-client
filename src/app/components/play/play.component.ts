@@ -21,6 +21,7 @@ export class PlayComponent implements OnInit {
   private ALERT_OVERLAPPING_ACTIONS = 'Another action is already being performed.'
   private ALERT_GEM_NOT_AVAILABLE = 'Can not gather more of that gem. Not enough are available in the gem bank.'
   private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card, and you already have the max number of cards reserved.'
+  private ALERT_INCORRECT_GEMS_SPENT_ON_CARD = 'The set of gems submitted does not meet the cost requirements of the card being bought.'
   public ALERT_CAN_NOT_AFFORD_RESERVED_CARD = 'You do not have enough gems to purchase that reserved card.'
   public ALERT_RESERVE_CARD = 'You do not have enough gems to purchase that card. Would you like to reserve it instead?'
   public ALERT_NO_GOLD_IN_BANK = 'The Gem bank is out of gold! You will not receive a gold gem when reserving this card. Would you like to reserve it anyway?'
@@ -32,6 +33,7 @@ export class PlayComponent implements OnInit {
   public ALERT_NO_GEM_TO_EXCHANGE = 'You do not have enough of that gem to exchange.'
   public ALERT_BAD_EXCHANGE = 'You can only exchange up to the number of gems gained. The difference must not cause you to exceed 10 gems.'
   private ALERT_EXCHANGE_CRITERIA_NOT_MET = 'You can only exchange gems if gathering gems would cause you to exceed 10 gems. You must have a total of 10 gems after the exchange.'
+  public ALERT_SPEND_GOLD = 'Select the type of gem you wish to spend your gold as from the choices below.'
 
   public alert: string;
 
@@ -43,6 +45,7 @@ export class PlayComponent implements OnInit {
   public ALERT_TYPE_NOBLE = 'Noble Impressed!'
   public ALERT_TYPE_RESERVE = 'Reserve A Card'
   public ALERT_TYPE_EXCHANGE = 'Exchange Gems'
+  public ALERT_TYPE_SPEND_GOLD = 'Spend Gold'
 
   public alertType: string;
 
@@ -60,6 +63,7 @@ export class PlayComponent implements OnInit {
 
   public gatheredGems: GemType[];
   public exchangingGems: GemType[];
+  public spendingGold: GemType[];
   public buyingCard: Card;
   private buyingCardIndex: number;
   public reservingCard: Card;
@@ -96,7 +100,10 @@ export class PlayComponent implements OnInit {
           return { 'box-shadow': '0 4px 8px 0 rgba(255, 255, 0, 0.8), 0 6px 20px 0 rgba(255, 255, 0, 0.8)' }
     } else {
       if (this.turnAction == this.ACTION_BUY_CARD && this.buyingCard && this.buyingCard == obj)
-        return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+        if (this.spendingGold.length == 0)
+          return { 'box-shadow': '0 4px 8px 0 rgba(255, 0, 0, 0.8), 0 6px 20px 0 rgba(255, 0, 0, 0.8)' }
+        else
+          return { 'box-shadow': '0 4px 8px 0 rgba(255, 255, 255, 0.8), 0 6px 20px 0 rgba(255, 255, 255, 0.8)' }
       else if (this.turnAction == this.ACTION_RESERVE_CARD && this.reservingCard && this.reservingCard == obj)
         return { 'box-shadow': '0 4px 8px 0 rgba(0, 0, 255, 0.8), 0 6px 20px 0 rgba(0, 0, 255, 0.8)' }
     }
@@ -237,6 +244,7 @@ export class PlayComponent implements OnInit {
     this.turnAction = this.ACTION_NONE
     this.gatheredGems = []
     this.exchangingGems = []
+    this.spendingGold = []
     this.buyingCard = undefined
     this.reservingCard = undefined
   }
@@ -273,7 +281,7 @@ export class PlayComponent implements OnInit {
         }
 
         if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1]) {
-          if (this.getPlayerGemsTotal() + this.gatheredGems.length <= 3) {
+          if (this.getPlayerGemsTotal() + this.gatheredGems.length <= 10) {
             return true
           } else {
             this.alert = this.ALERT_MAX_GEMS
@@ -292,7 +300,7 @@ export class PlayComponent implements OnInit {
         }
 
         if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1]) {
-          if (this.getPlayerGemsTotal() + this.gatheredGems.length == 3) {
+          if (this.getPlayerGemsTotal() + this.gatheredGems.length == 10) {
             return true
           } else {
             this.alert = this.ALERT_EXCHANGE_CRITERIA_NOT_MET
@@ -306,7 +314,12 @@ export class PlayComponent implements OnInit {
       }
       case this.ACTION_BUY_CARD: {
         if (this.buyingCard)
-          return true
+          if (this.validatePlayerBuyingCard())
+            return true
+          else {
+            this.alert = this.ALERT_INCORRECT_GEMS_SPENT_ON_CARD
+            return false
+          }
         else
           return false
       }
@@ -361,8 +374,6 @@ export class PlayComponent implements OnInit {
         break;
       }
       case this.ACTION_BUY_CARD: {
-        console.log('buycard', this.buyingCard)
-        console.log('buyindex', this.buyingCardIndex)
         // do not update shown cards if buying a reserved card
         if (this.buyingCardIndex != undefined) {
           // update shown cards
@@ -372,16 +383,23 @@ export class PlayComponent implements OnInit {
           console.log('remove held card')
           this.gameService.getPlayers()[this.activePlayer].heldCards.splice(this.gameService.getPlayers()[this.activePlayer].heldCards.findIndex((card) => { return card == this.buyingCard }), 1)
         }
+
+        let goldSpent = new Map<GemType, number>()
+        Object.keys(GemType).forEach((gemType) => { goldSpent.set(GemType[gemType as GemType], 0) });
+        this.spendingGold.forEach((gem) => { goldSpent.set(gem, goldSpent.get(gem) + 1) })
+
         // update player and bank gems
         for (let gem of this.buyingCard.cost.entries()) {
           let playerCards = this.getPlayerBuyingPowerByGemType(gem[0]) - oldPlayerTokens.get(gem[0])
-          let tokensBeingUsed = gem[1] - playerCards
+          let tokensBeingUsed = gem[1] - playerCards - goldSpent.get(gem[0])
           console.log('tokensBeingUsed - GemType', gem[0], '- count', tokensBeingUsed)
-          if (tokensBeingUsed && tokensBeingUsed > 0) {
+          console.log('goldBeingUsed - GemType', gem[0], '- count', goldSpent.get(gem[0]))
+          if (tokensBeingUsed != undefined && tokensBeingUsed > 0) {
             this.updateBankTokens(gem[0], tokensBeingUsed)
             this.updatePlayerTokens(gem[0], -tokensBeingUsed)
           }
         }
+        this.updateBankTokens(GemType.GOLD, this.spendingGold.length)
         this.updatePlayerBuyingPower(oldPlayerTokens)
         // update player points for bought card
         this.gameService.getPlayers()[this.activePlayer].points += this.buyingCard.points
@@ -495,8 +513,6 @@ export class PlayComponent implements OnInit {
       return
     }
 
-    // check player gem count
-
     if (gemType != GemType.GOLD) {
       // check that gem is available
       if (!this.gemIsAvailable(gemType)) {
@@ -606,7 +622,7 @@ export class PlayComponent implements OnInit {
     console.log('getPlayerGemsTotal', this.getPlayerGemsTotal())
     console.log('available gold', this.gameService.getBankTokens().get(GemType.GOLD))
     //temp
-    if (this.getPlayerGemsTotal() < 3 && this.gemIsAvailable(GemType.GOLD)) {
+    if (this.getPlayerGemsTotal() < 10 && this.gemIsAvailable(GemType.GOLD)) {
       console.log('reserve card no issues')
       this.gempyreModalButton.click()
       this.gatheredGems.push(GemType.GOLD)
@@ -616,7 +632,7 @@ export class PlayComponent implements OnInit {
       this.alertType = this.ALERT_TYPE_RESERVE
       this.alert = this.ALERT_NO_GOLD_IN_BANK
       //temp
-    } else if (this.getPlayerGemsTotal() == 3) {
+    } else if (this.getPlayerGemsTotal() == 10) {
       console.log('reserve card with max gems')
       this.alertType = this.ALERT_TYPE_RESERVE
       this.alert = this.ALERT_RESERVE_WITH_MAX_GEMS
@@ -642,20 +658,94 @@ export class PlayComponent implements OnInit {
   }
 
   public activePlayerCanAffordCard(card: Card): boolean {
+    let playerGold = this.getPlayerBuyingPowerByGemType(GemType.GOLD)
+
+    while (this.spendingGold.length > 0) {
+      this.returnGoldSpentAsGem(this.spendingGold[0])
+    }
+
     for (let cost of card.cost.entries()) {
-      if (this.getPlayerBuyingPowerByGemType(cost[0]) < cost[1]) {
+      if (this.getPlayerBuyingPowerByGemType(cost[0]) + playerGold < cost[1]) {
         console.log('player', this.activePlayer, 'can not afford card:', card)
+
+        while (this.spendingGold.length > 0) {
+          this.returnGoldSpentAsGem(this.spendingGold[0])
+        }
+
         return false
+      } else if (this.getPlayerBuyingPowerByGemType(cost[0]) < cost[1] && this.getPlayerBuyingPowerByGemType(cost[0]) + playerGold >= cost[1]) {
+        let diff = cost[1] - this.getPlayerBuyingPowerByGemType(cost[0])
+        playerGold -= diff
+        while (diff > 0) {
+          this.spendGoldAsGem(cost[0])
+          diff--
+        }
       }
     }
 
     return true;
   }
 
+  public validatePlayerBuyingCard(): boolean {
+
+    if (this.spendingGold.length == 0) {
+      for (let cost of this.buyingCard.cost.entries()) {
+        if (this.getPlayerBuyingPowerByGemType(cost[0]) < cost[1])
+          return false
+      }
+    } else {
+      let goldSpent = new Map<GemType, number>()
+      Object.keys(GemType).forEach((gemType) => { goldSpent.set(GemType[gemType as GemType], 0) });
+      this.spendingGold.forEach((gem) => { goldSpent.set(gem, goldSpent.get(gem) + 1) })
+
+      for (let cost of this.buyingCard.cost.entries()) {
+        if (goldSpent.get(cost[0]) > 0) {
+          // if spending gold, make sure tokens are being used. i.e. Player should not be able to meet the cost of a gem type with only cards
+          if (this.getPlayerCardsByGemType(cost[0]) >= cost[1]) {
+            return false
+            // if spending gold, make sure player is not over spending gold
+          } else if (this.getPlayerCardsByGemType(cost[0]) + goldSpent.get(cost[0]) > cost[1]) {
+            return false
+            // if spending gold, make sure player has spent enough gold
+          } else if (this.getPlayerBuyingPowerByGemType(cost[0]) + goldSpent.get(cost[0]) < cost[1]) {
+            return false
+          }
+        } else {
+          if (this.getPlayerBuyingPowerByGemType(cost[0]) < cost[1])
+            return false
+        }
+      }
+    }
+
+    return true
+  }
+
+  public startSpendingGold(): void {
+    this.showGempyreModal(this.ALERT_TYPE_EXCHANGE, this.ALERT_SPEND_GOLD)
+  }
+
+  public spendGoldAsGem(gem: GemType): void {
+    this.spendingGold.push(gem)
+
+    this.updatePlayerTokens(GemType.GOLD, -1)
+    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(GemType.GOLD, this.getPlayerBuyingPowerByGemType(GemType.GOLD) - 1)
+  }
+
+  public returnGoldSpentAsGem(returningGem: GemType): void {
+    this.spendingGold.splice(this.spendingGold.findIndex((gem) => { return gem == returningGem }), 1)
+
+    this.updatePlayerTokens(GemType.GOLD, 1)
+    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(GemType.GOLD, this.getPlayerBuyingPowerByGemType(GemType.GOLD) + 1)
+  }
+
   public returnBuyingCard(): void {
     this.turnAction = this.ACTION_NONE
     this.buyingCard = undefined
     this.buyingCardIndex = undefined
+
+    while (this.spendingGold.length > 0) {
+      this.returnGoldSpentAsGem(this.spendingGold[0])
+    }
   }
 
   public returnReservingCard(): void {
