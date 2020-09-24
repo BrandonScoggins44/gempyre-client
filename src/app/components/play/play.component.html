@@ -299,6 +299,77 @@
                             </div>
                         </div>
 
+                        <!-- Exchanging Gems -->
+                        <div *ngIf="turnAction == ACTION_EXCHANGE_GEMS">
+                            <!-- Gathered Gems -->
+                            <div class="row mb-2">
+                                <div class="col"></div>
+                                <div class="col-6">
+                                    <div class="text-center mb-1 border-secondary border-bottom">
+                                        Gaining Gems
+                                    </div>
+                                </div>
+                                <div class="col"></div>
+                            </div>
+                            <div *ngFor="let gem of gatheredGems; let i = index">
+                                <div class="row">
+                                    <div class="col"></div>
+                                    <div class="col-8">
+                                        <div class="card pointer" [ngClass]=getGemColor(gem[0])
+                                            (click)="returnGem(gem)">
+                                            <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
+                                                src="../../../assets/t1gem.png" alt="{{gem}}">
+                                            <div class="card-img-overlay">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <div class="row justify-content-around bg-light">
+                                                        <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}
+                                                        </h4>
+                                                        <h4>1</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                                <br *ngIf="i + 1 < gatheredGems.length">
+                            </div>
+                            <hr class="mb-1 mt-2">
+                            <!-- Exchanging Gems -->
+                            <div class="row mb-2">
+                                <div class="col"></div>
+                                <div class="col-6">
+                                    <div class="text-center mb-1 border-secondary border-bottom">
+                                        Returning Gems
+                                    </div>
+                                </div>
+                                <div class="col"></div>
+                            </div>
+                            <div *ngFor="let gem of exchangingGems; let i = index">
+                                <div class="row">
+                                    <div class="col"></div>
+                                    <div class="col-8">
+                                        <div class="card pointer" [ngClass]=getGemColor(gem[0])
+                                            (click)="returnExchangingGem(gem)">
+                                            <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
+                                                src="../../../assets/t1gem.png" alt="{{gem}}">
+                                            <div class="card-img-overlay">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <div class="row justify-content-around bg-light">
+                                                        <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}
+                                                        </h4>
+                                                        <h4>1</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                                <br *ngIf="i + 1 < exchangingGems.length">
+                            </div>
+                        </div>
+
                         <!-- Buying a card -->
                         <div *ngIf="turnAction == ACTION_BUY_CARD">
 
@@ -461,13 +532,16 @@
 
                     </div>
                     <!-- Player buying power -->
-                    <div class="col" *ngFor="let gem of gemTypes">
+                    <div class="col" [class.pointer]="turnAction == ACTION_EXCHANGE_GEMS" *ngFor="let gem of gemTypes">
+                        <!-- Gem Title -->
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
                         <!-- total -->
-                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" *ngIf="showBuyingPowerAsTotal">
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" (click)="exchangeGem(gem)"
+                            *ngIf="showBuyingPowerAsTotal">
                             {{getPlayerBuyingPowerByGemType(gem)}}</h6>
                         <!-- gem - card breakdown -->
-                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" *ngIf="!showBuyingPowerAsTotal">
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])" (click)="exchangeGem(gem)"
+                            *ngIf="!showBuyingPowerAsTotal">
                             {{getPlayerGemsByGemType(gem)}} -
                             {{getPlayerCardsByGemType(gem)}}</h6>
                     </div>
@@ -507,14 +581,15 @@
                 {{alert}}
             </div>
             <!-- footer for non-reserve actions -->
-            <div class="modal-footer" *ngIf="alertType != ALERT_TYPE_RESERVE && alert != ALERT_CAN_NOT_AFFORD_RESERVED_CARD && alert != ALERT_MUST_TAKE_TURN_ACTION">
+            <div class="modal-footer"
+                *ngIf="alertType != ALERT_TYPE_RESERVE && alert != ALERT_CAN_NOT_AFFORD_RESERVED_CARD && alert != ALERT_MUST_TAKE_TURN_ACTION">
                 <!-- Yes button for exchange gems -->
-                <button type="button" class="btn btn-secondary col" data-dismiss="modal" (click)="startGemExchange()"
+                <button type="button" class="btn btn-secondary col" (click)="startGemExchange()"
                     *ngIf="alert == ALERT_MAX_GEMS">Yes</button>
                 <div class="col"></div>
                 <!-- No Button for exchange gems -->
-                <button type="button" class="btn btn-secondary col" data-dismiss="modal"
-                    *ngIf="alert == ALERT_MAX_GEMS">No</button>
+                <button type="button" class="btn btn-secondary col" data-dismiss="modal" *ngIf="alert == ALERT_MAX_GEMS"
+                    (click)="clearTurnAction()">No</button>
                 <div class="col"></div>
                 <!-- View Turn Action button -->
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="showTurnAction();">View

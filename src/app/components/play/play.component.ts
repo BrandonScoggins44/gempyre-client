@@ -26,7 +26,10 @@ export class PlayComponent implements OnInit {
   private ALERT_VICTORY = /* Player */ ' has won the game!'
   private ALERT_EARNED_NOBLE = /* Player */ ' has impressed a Noble gaining there support (points).'
   public ALERT_MAX_GEMS = 'Gathering these gems will cause you to exceed the maximum number of gems a player can hold (10). Would you like to exchange some of the gems you already have for these new ones?'
-  public ALERT_EXCHANGE = 'To exchange gems, select gems you would like to acquire from the gem bank as usual. Then select the gems you want to exhange with them by clicking on the gem in your player pool.'
+  public ALERT_EXCHANGE = 'To exchange gems, select gems you would like to gain from the gem bank as usual. Then select the gems you want to exhange with them by clicking on the gem in your player pool.'
+  public ALERT_NO_GEM_TO_EXCHANGE = 'You do not have enough of that gem to exchange.'
+  public ALERT_BAD_EXCHANGE = 'You can only exchange up to the number of gems gained. The difference must not cause you to exceed 10 gems.'
+  private ALERT_EXCHANGE_CRITERIA_NOT_MET = 'You can only exchange gems if gathering gems would cause you to exceed 10 gems. You must have a total of 10 gems after the exchange.'
 
   public alert: string;
 
@@ -53,6 +56,7 @@ export class PlayComponent implements OnInit {
   public showBuyingPowerAsTotal: boolean = true
 
   public gatheredGems: GemType[];
+  public exchangingGems: GemType[];
   public buyingCard: Card;
   private buyingCardIndex: number;
   public reservingCard: Card;
@@ -229,6 +233,7 @@ export class PlayComponent implements OnInit {
     // establish turn variables
     this.turnAction = this.ACTION_NONE
     this.gatheredGems = []
+    this.exchangingGems = []
     this.buyingCard = undefined
     this.reservingCard = undefined
   }
@@ -253,10 +258,6 @@ export class PlayComponent implements OnInit {
   private validateTurnAction(): boolean {
     console.log('validateTurnAction:', this.turnAction)
 
-    // console.log('buyingCard', this.buyingCard)
-    // console.log('buyingCardIndex', this.buyingCardIndex)
-    // console.log('gatheredGems', this.gatheredGems)
-
     switch (this.turnAction) {
       case this.ACTION_NONE: {
         this.alert = this.ALERT_MUST_TAKE_TURN_ACTION
@@ -269,10 +270,29 @@ export class PlayComponent implements OnInit {
         }
 
         if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1]) {
-          if (this.getPlayerGemsTotal() + this.gatheredGems.length <= 10) {
+          if (this.getPlayerGemsTotal() + this.gatheredGems.length <= 3) {
             return true
           } else {
             this.alert = this.ALERT_MAX_GEMS
+            return false
+          }
+        }
+        else {
+          this.alert = this.ALERT_INVALID_GEM_SELECTION
+          return false
+        }
+      }
+      case this.ACTION_EXCHANGE_GEMS: {
+        if (this.gatheredGems.length < 2) {
+          this.alert = this.ALERT_INVALID_GEM_SELECTION
+          return false
+        }
+
+        if (this.gatheredGems.length == 3 || this.gatheredGems[0] == this.gatheredGems[1]) {
+          if (this.getPlayerGemsTotal() + this.gatheredGems.length == 3) {
+            return true
+          } else {
+            this.alert = this.ALERT_EXCHANGE_CRITERIA_NOT_MET
             return false
           }
         }
@@ -311,6 +331,17 @@ export class PlayComponent implements OnInit {
         for (let gem of this.gatheredGems) {
           this.updateBankTokens(gem, -1)
           this.updatePlayerTokens(gem, 1)
+        }
+        this.updatePlayerBuyingPower(oldPlayerTokens)
+        break;
+      }
+      case this.ACTION_EXCHANGE_GEMS: {
+        for (let gem of this.gatheredGems) {
+          this.updateBankTokens(gem, -1)
+          this.updatePlayerTokens(gem, 1)
+        }
+        for (let gem of this.exchangingGems) {
+          this.updateBankTokens(gem, 1)
         }
         this.updatePlayerBuyingPower(oldPlayerTokens)
         break;
@@ -440,7 +471,7 @@ export class PlayComponent implements OnInit {
   public gatherGem(gemType: GemType): void {
 
     // check that action is available
-    if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_GATHER_GEMS) {
+    if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_GATHER_GEMS && this.turnAction != this.ACTION_EXCHANGE_GEMS) {
       this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
       return
     }
@@ -467,7 +498,7 @@ export class PlayComponent implements OnInit {
       console.log('cannot gather gold')
     }
 
-    if (this.gatheredGems.length > 0) {
+    if (this.gatheredGems.length > 0 && this.turnAction == this.ACTION_NONE) {
       this.turnAction = this.ACTION_GATHER_GEMS
     }
   }
@@ -484,9 +515,32 @@ export class PlayComponent implements OnInit {
     }
   }
 
+  public exchangeGem(gem: GemType): void {
+    if (this.exchangingGems.length < this.gatheredGems.length) {
+      if (this.getPlayerGemsByGemType(gem) != undefined && this.getPlayerGemsByGemType(gem) > 0) {
+        this.exchangingGems.push(gem)
+        this.updatePlayerTokens(gem, -1)
+        this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(gem) - 1)
+      } else {
+        this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_NO_GEM_TO_EXCHANGE)
+      }
+    } else {
+      this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_BAD_EXCHANGE)
+    }
+  }
+
+  public returnExchangingGem(returnGem: GemType): void {
+
+    this.updatePlayerTokens(returnGem, 1)
+    this.gameService.getPlayers()[this.activePlayer].buyingPower.set(returnGem, this.getPlayerBuyingPowerByGemType(returnGem) + 1)
+
+    this.exchangingGems.splice(this.exchangingGems.findIndex((gem) => { return gem == returnGem }), 1)
+  }
+
   public startGemExchange(): void {
     this.turnAction = this.ACTION_EXCHANGE_GEMS
-    this.showGempyreModal(this.ALERT_TYPE_EXCHANGE, this.ALERT_EXCHANGE);
+    this.alertType = this.ALERT_TYPE_EXCHANGE
+    this.alert = this.ALERT_EXCHANGE
   }
 
   public buyCard(card: Card, showingIndex?: number): void {
@@ -497,8 +551,6 @@ export class PlayComponent implements OnInit {
         this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
         return
       }
-      console.log('buycard', card)
-      console.log('buyindex', showingIndex)
       this.turnAction = this.ACTION_BUY_CARD
       this.buyingCard = card
       this.buyingCardIndex = showingIndex
@@ -577,7 +629,11 @@ export class PlayComponent implements OnInit {
       }
       case this.ACTION_EXCHANGE_GEMS: {
         this.gatheredGems = []
-        // this.exchangingGems = []
+        this.exchangingGems.forEach((gem) => {
+          this.updatePlayerTokens(gem, 1)
+          this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(gem) + 1)
+        })
+        this.exchangingGems = []
         this.turnAction = this.ACTION_NONE
         break
       }
