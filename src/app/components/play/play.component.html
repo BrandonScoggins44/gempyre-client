@@ -299,8 +299,116 @@
                             </div>
                         </div>
 
+                        <!-- Buying a card -->
+                        <div *ngIf="turnAction == ACTION_BUY_CARD">
+
+                            <div class="row">
+                                <div class="col"></div>
+                                <div class="col-8">
+                                    <div class="card pointer" [ngClass]=getTierCardColor(buyingCard)
+                                        (click)="returnBuyingCard();">
+                                        <img class="card-img"
+                                            style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
+                                            [src]=getTierCardImage(buyingCard.tier) alt="tier{{buyingCard.tier}}">
+                                        <div class="card-img-overlay">
+                                            <div class="d-flex flex-column h-100 justify-content-between"
+                                                *ngIf="buyingCard">
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4>{{buyingCard.points}}</h4>
+                                                    <h4>-</h4>
+                                                    <h4 [ngStyle]="getCostColor(buyingCard.value[0])">
+                                                        1
+                                                    </h4>
+                                                </div>
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4 class="card-text text-center"
+                                                        [ngStyle]="getCostColor(cardCost.key[0])"
+                                                        *ngFor="let cardCost of buyingCard.cost | keyvalue">
+                                                        {{cardCost.value}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col"></div>
+                            </div>
+
+                        </div>
+
+                        <!-- Reserving a card -->
+                        <div *ngIf="turnAction == ACTION_RESERVE_CARD || turnAction == ACTION_RESERVE_EXCHANGE">
+
+                            <div class="row">
+                                <div class="col"></div>
+                                <div class="col-8">
+                                    <div class="card pointer" [ngClass]=getTierCardColor(reservingCard)
+                                        (click)="returnReservingCard();">
+                                        <img class="card-img"
+                                            style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
+                                            [src]=getTierCardImage(reservingCard.tier) alt="tier{{reservingCard.tier}}">
+                                        <div class="card-img-overlay">
+                                            <div class="d-flex flex-column h-100 justify-content-between"
+                                                *ngIf="reservingCard">
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4>{{reservingCard.points}}</h4>
+                                                    <h4>-</h4>
+                                                    <h4 [ngStyle]="getCostColor(reservingCard.value[0])">
+                                                        1
+                                                    </h4>
+                                                </div>
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4 class="card-text text-center"
+                                                        [ngStyle]="getCostColor(cardCost.key[0])"
+                                                        *ngFor="let cardCost of reservingCard.cost | keyvalue">
+                                                        {{cardCost.value}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col"></div>
+                            </div>
+
+                            <!-- Gathered Gold -->
+                            <div *ngIf="gatheredGems.length > 0 && turnAction == ACTION_RESERVE_CARD">
+                                <div class="row mb-2">
+                                    <div class="col"></div>
+                                    <div class="col-6">
+                                        <div class="text-center mb-1 border-secondary border-bottom">
+                                            Gaining Gems
+                                        </div>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                                <div *ngFor="let gem of gatheredGems; let i = index">
+                                    <div class="row">
+                                        <div class="col"></div>
+                                        <div class="col-8">
+                                            <div class="card pointer" [ngClass]=getGemColor(gem[0])>
+                                                <img class="card-img"
+                                                    style="object-fit: cover; height: 9vh; opacity: .5;"
+                                                    src="../../../assets/t1gem.png" alt="{{gem}}">
+                                                <div class="card-img-overlay">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <div class="row justify-content-around bg-light">
+                                                            <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}
+                                                            </h4>
+                                                            <h4>1</h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col"></div>
+                                    </div>
+                                    <br *ngIf="i + 1 < gatheredGems.length">
+                                </div>
+                            </div>
+
+                        </div>
+
                         <!-- Exchanging Gems -->
-                        <div *ngIf="turnAction == ACTION_EXCHANGE_GEMS">
+                        <div *ngIf="turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE">
                             <!-- Gathered Gems -->
                             <div class="row mb-2">
                                 <div class="col"></div>
@@ -315,8 +423,7 @@
                                 <div class="row">
                                     <div class="col"></div>
                                     <div class="col-8">
-                                        <div class="card pointer" [ngClass]=getGemColor(gem[0])
-                                            (click)="returnGem(gem)">
+                                        <div class="card pointer" [ngClass]=getGemColor(gem[0])>
                                             <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                                                 src="../../../assets/t1gem.png" alt="{{gem}}">
                                             <div class="card-img-overlay">
@@ -368,78 +475,6 @@
                                 </div>
                                 <br *ngIf="i + 1 < exchangingGems.length">
                             </div>
-                        </div>
-
-                        <!-- Buying a card -->
-                        <div *ngIf="turnAction == ACTION_BUY_CARD">
-
-                            <div class="row">
-                                <div class="col"></div>
-                                <div class="col-8">
-                                    <div class="card pointer" [ngClass]=getTierCardColor(buyingCard)
-                                        (click)="returnBuyingCard();">
-                                        <img class="card-img"
-                                            style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
-                                            [src]=getTierCardImage(buyingCard.tier) alt="tier{{buyingCard.tier}}">
-                                        <div class="card-img-overlay">
-                                            <div class="d-flex flex-column h-100 justify-content-between"
-                                                *ngIf="buyingCard">
-                                                <div class="row justify-content-around bg-light">
-                                                    <h4>{{buyingCard.points}}</h4>
-                                                    <h4>-</h4>
-                                                    <h4 [ngStyle]="getCostColor(buyingCard.value[0])">
-                                                        1
-                                                    </h4>
-                                                </div>
-                                                <div class="row justify-content-around bg-light">
-                                                    <h4 class="card-text text-center"
-                                                        [ngStyle]="getCostColor(cardCost.key[0])"
-                                                        *ngFor="let cardCost of buyingCard.cost | keyvalue">
-                                                        {{cardCost.value}}</h4>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col"></div>
-                            </div>
-
-                        </div>
-
-                        <!-- Reserving a card -->
-                        <div *ngIf="turnAction == ACTION_RESERVE_CARD">
-
-                            <div class="row">
-                                <div class="col"></div>
-                                <div class="col-8">
-                                    <div class="card pointer" [ngClass]=getTierCardColor(reservingCard)
-                                        (click)="returnReservingCard();">
-                                        <img class="card-img"
-                                            style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
-                                            [src]=getTierCardImage(reservingCard.tier) alt="tier{{reservingCard.tier}}">
-                                        <div class="card-img-overlay">
-                                            <div class="d-flex flex-column h-100 justify-content-between"
-                                                *ngIf="reservingCard">
-                                                <div class="row justify-content-around bg-light">
-                                                    <h4>{{reservingCard.points}}</h4>
-                                                    <h4>-</h4>
-                                                    <h4 [ngStyle]="getCostColor(reservingCard.value[0])">
-                                                        1
-                                                    </h4>
-                                                </div>
-                                                <div class="row justify-content-around bg-light">
-                                                    <h4 class="card-text text-center"
-                                                        [ngStyle]="getCostColor(cardCost.key[0])"
-                                                        *ngFor="let cardCost of reservingCard.cost | keyvalue">
-                                                        {{cardCost.value}}</h4>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col"></div>
-                            </div>
-
                         </div>
 
                     </ng-template>
@@ -532,7 +567,9 @@
 
                     </div>
                     <!-- Player buying power -->
-                    <div class="col" [class.pointer]="turnAction == ACTION_EXCHANGE_GEMS" *ngFor="let gem of gemTypes">
+                    <div class="col"
+                        [class.pointer]="turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE"
+                        *ngFor="let gem of gemTypes">
                         <!-- Gem Title -->
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
                         <!-- total -->
@@ -597,8 +634,15 @@
             </div>
             <!-- footer for reserve action -->
             <div class="modal-footer" *ngIf="alertType == ALERT_TYPE_RESERVE">
-                <button type="button" class="btn btn-secondary col" data-dismiss="modal"
-                    (click)="updateReservingCard()">Yes</button>
+                <!-- Yes for reserve card initially -->
+                <button type="button" class="btn btn-secondary col" (click)="confirmReserveCard()"
+                    *ngIf="alert == ALERT_RESERVE_CARD">Yes</button>
+                <!-- Yes for reserve card if no gold is available -->
+                <button type="button" class="btn btn-secondary col" data-dismiss="modal" (click)="updateReservingCard()"
+                    *ngIf="alert == ALERT_NO_GOLD_IN_BANK">Yes</button>
+                <!-- Yes for reserve card if at max gems -->
+                <button type="button" class="btn btn-secondary col" (click)="startExchangeGemForGold()"
+                    *ngIf="alert == ALERT_RESERVE_WITH_MAX_GEMS">Yes</button>
                 <div class="col"></div>
                 <button type="button" class="btn btn-secondary col" data-dismiss="modal">No</button>
             </div>

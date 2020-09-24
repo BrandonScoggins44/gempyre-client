@@ -23,6 +23,8 @@ export class PlayComponent implements OnInit {
   private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card, and you already have the max number of cards reserved.'
   public ALERT_CAN_NOT_AFFORD_RESERVED_CARD = 'You do not have enough gems to purchase that reserved card.'
   public ALERT_RESERVE_CARD = 'You do not have enough gems to purchase that card. Would you like to reserve it instead?'
+  public ALERT_NO_GOLD_IN_BANK = 'The Gem bank is out of gold! You will not receive a gold gem when reserving this card. Would you like to reserve it anyway?'
+  public ALERT_RESERVE_WITH_MAX_GEMS = 'The gold gained from reserving this card will cause you to exceed 10 gems. Would you like to continue by exchanging a gem for a gold?'
   private ALERT_VICTORY = /* Player */ ' has won the game!'
   private ALERT_EARNED_NOBLE = /* Player */ ' has impressed a Noble gaining there support (points).'
   public ALERT_MAX_GEMS = 'Gathering these gems will cause you to exceed the maximum number of gems a player can hold (10). Would you like to exchange some of the gems you already have for these new ones?'
@@ -50,6 +52,7 @@ export class PlayComponent implements OnInit {
   public ACTION_EXCHANGE_GEMS = 'Exchange Gems'
   public ACTION_BUY_CARD = 'Buy Card'
   public ACTION_RESERVE_CARD = 'Reserve Card'
+  public ACTION_RESERVE_EXCHANGE = 'Reserve and Exchange'
 
   public turnAction: string;
   private activePlayer: number;
@@ -308,9 +311,20 @@ export class PlayComponent implements OnInit {
           return false
       }
       case this.ACTION_RESERVE_CARD: {
-        if (this.reservingCard && this.reservingCardIndex != NaN)
+        if (this.reservingCard && this.reservingCardIndex != undefined)
           return true
         else
+          return false
+      }
+      case this.ACTION_RESERVE_EXCHANGE: {
+        if (this.reservingCard && this.reservingCardIndex != undefined) {
+
+          if (this.exchangingGems.length != 1) {
+            this.alert = this.ALERT_EXCHANGE_CRITERIA_NOT_MET
+            return false
+          } else
+            return true
+        } else
           return false
       }
       default: {
@@ -372,6 +386,11 @@ export class PlayComponent implements OnInit {
         // update player points for bought card
         this.gameService.getPlayers()[this.activePlayer].points += this.buyingCard.points
         break;
+      }
+      case this.ACTION_RESERVE_EXCHANGE: {
+        for (let gem of this.exchangingGems) {
+          this.updateBankTokens(gem, 1)
+        }
       }
       case this.ACTION_RESERVE_CARD: {
         // update shown cards
@@ -510,7 +529,7 @@ export class PlayComponent implements OnInit {
   public returnGem(gemType: GemType): void {
     this.gatheredGems.splice(this.gatheredGems.findIndex((gem) => { return gem == gemType }), 1)
 
-    if (this.gatheredGems.length == 0) {
+    if (this.gatheredGems.length == 0 && this.turnAction != this.ACTION_EXCHANGE_GEMS) {
       this.turnAction = this.ACTION_NONE
     }
   }
@@ -582,6 +601,39 @@ export class PlayComponent implements OnInit {
     }
   }
 
+  public confirmReserveCard(): void {
+    console.log('confirmReserveCard')
+    console.log('getPlayerGemsTotal', this.getPlayerGemsTotal())
+    console.log('available gold', this.gameService.getBankTokens().get(GemType.GOLD))
+    //temp
+    if (this.getPlayerGemsTotal() < 3 && this.gemIsAvailable(GemType.GOLD)) {
+      console.log('reserve card no issues')
+      this.gempyreModalButton.click()
+      this.gatheredGems.push(GemType.GOLD)
+      this.updateReservingCard()
+    } else if (!this.gemIsAvailable(GemType.GOLD)) {
+      console.log('reserve card with 0 gold')
+      this.alertType = this.ALERT_TYPE_RESERVE
+      this.alert = this.ALERT_NO_GOLD_IN_BANK
+      //temp
+    } else if (this.getPlayerGemsTotal() == 3) {
+      console.log('reserve card with max gems')
+      this.alertType = this.ALERT_TYPE_RESERVE
+      this.alert = this.ALERT_RESERVE_WITH_MAX_GEMS
+    }
+  }
+
+  public startExchangeGemForGold(): void {
+    this.updateReservingCard()
+
+    this.turnAction = this.ACTION_RESERVE_EXCHANGE
+
+    this.alertType = this.ALERT_TYPE_EXCHANGE
+    this.alert = this.ALERT_EXCHANGE
+
+    this.gatheredGems.push(GemType.GOLD)
+  }
+
   public updateReservingCard(): void {
     this.turnAction = this.ACTION_RESERVE_CARD
 
@@ -625,9 +677,21 @@ export class PlayComponent implements OnInit {
       }
       case this.ACTION_RESERVE_CARD: {
         this.returnReservingCard()
+        this.gatheredGems = []
         break
       }
       case this.ACTION_EXCHANGE_GEMS: {
+        this.gatheredGems = []
+        this.exchangingGems.forEach((gem) => {
+          this.updatePlayerTokens(gem, 1)
+          this.gameService.getPlayers()[this.activePlayer].buyingPower.set(gem, this.getPlayerBuyingPowerByGemType(gem) + 1)
+        })
+        this.exchangingGems = []
+        this.turnAction = this.ACTION_NONE
+        break
+      }
+      case this.ACTION_RESERVE_EXCHANGE: {
+        this.returnReservingCard()
         this.gatheredGems = []
         this.exchangingGems.forEach((gem) => {
           this.updatePlayerTokens(gem, 1)
