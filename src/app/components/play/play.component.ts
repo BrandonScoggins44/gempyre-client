@@ -523,8 +523,9 @@ export class PlayComponent implements OnInit {
 
           if (requirementsMet) {
             this.gameService.getPlayers()[this.activePlayer].points += 3
+            console.log('player', this.activePlayer + 1, 'earned a noble!')
             this.gameService.getNobles()[this.gameService.getNobles().findIndex((targetNoble) => { return targetNoble == noble })] = undefined
-            this.showGempyreModal(this.ALERT_TYPE_NOBLE, 'Player ' + this.activePlayer + this.ALERT_EARNED_NOBLE)
+            this.showGempyreModal(this.ALERT_TYPE_NOBLE, this.gameService.getPlayers()[this.activePlayer].name + this.ALERT_EARNED_NOBLE)
             break
           }
         }
