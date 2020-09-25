@@ -608,6 +608,8 @@ export class PlayComponent implements OnInit {
       // if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD && this.turnAction != this.ACTION_RESERVE_CARD) {     // use this line if we don't want get Overlapping Actions modal between buying and reserving
       if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_RESERVE_CARD) {
         this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_OVERLAPPING_ACTIONS);
+        if (this.turnAction == this.ACTION_BUY_CARD && this.buyingCard != undefined)
+          this.activePlayerCanAffordCard(this.buyingCard)
         return
       }
 
@@ -663,11 +665,11 @@ export class PlayComponent implements OnInit {
   }
 
   public activePlayerCanAffordCard(card: Card): boolean {
-    let playerGold = this.getPlayerBuyingPowerByGemType(this.activePlayer, GemType.GOLD)
-
     while (this.spendingGold.length > 0) {
       this.returnGoldSpentAsGem(this.spendingGold[0])
     }
+
+    let playerGold = this.getPlayerBuyingPowerByGemType(this.activePlayer, GemType.GOLD)
 
     for (let cost of card.cost.entries()) {
       if (this.getPlayerBuyingPowerByGemType(this.activePlayer, cost[0]) + playerGold < cost[1]) {

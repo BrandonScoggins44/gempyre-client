@@ -28,9 +28,9 @@
                     <div class="col">
                         <!-- Toggle Resource Details -->
                         <div class="row justify-content-end">
-                            <div class="pointer" [class.text-muted]="showBuyingPowerAsTotal"
+                            <div [class.pointer]="activePlayer == 1" [class.text-muted]="showBuyingPowerAsTotal"
                                 [class.font-weight-light]="showBuyingPowerAsTotal"
-                                (click)="showBuyingPowerAsTotal = !showBuyingPowerAsTotal">
+                                (click)="activePlayer == 1 ? (showBuyingPowerAsTotal = !showBuyingPowerAsTotal) : {}">
                                 Gems ({{getPlayerGemsTotal(1)}}) - Cards ({{getPlayerCardsTotal(1)}}) &nbsp;
                             </div>
                         </div>
@@ -56,8 +56,9 @@
                             <div class="row">
                                 <div class="col"></div>
                                 <div class="col-8">
-                                    <div class="card pointer" [ngClass]=getTierCardColor(card)
-                                        (click)="activePlayerCanAffordCard(card) ? buyCard(card) : showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_RESERVED_CARD)"
+                                    <div class="card" [ngClass]=getTierCardColor(card)
+                                        [class.pointer]="activePlayer == 1"
+                                        (click)="activePlayer == 1 ? (activePlayerCanAffordCard(card) ? buyCard(card) : showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_RESERVED_CARD)) : {}"
                                         [ngStyle]=showAsSelected(card)>
                                         <img class="card-img"
                                             style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
@@ -96,14 +97,14 @@
                     </div>
                     <!-- Player buying power -->
                     <div class="col"
-                        [class.pointer]="turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE || (turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(1, gem) > 0)"
+                        [class.pointer]="activePlayer == 1 ? (turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE || (turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(1, gem) > 0)) : false"
                         *ngFor="let gem of gemTypes">
                         <!-- Gem Title -->
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
                         <!-- Gem display -->
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])"
-                            (click)="(turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE) ? exchangeGem(gem) : 
-                        ((turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(1, gem) > 0) ? startSpendingGold() : {})">
+                            (click)="activePlayer == 1 ? ((turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE) ? exchangeGem(gem) : 
+                        ((turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(1, gem) > 0) ? startSpendingGold() : {})) : {}">
                             <!-- total -->
                             <div *ngIf="showBuyingPowerAsTotal">
                                 {{getPlayerBuyingPowerByGemType(1, gem)}}
@@ -181,8 +182,9 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT3Showing(); let i = index">
                             <div class="col-sm-2"
-                                (click)="activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)">
-                                <div class="card bg-success" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
+                                (click)="activePlayer == activePlayer ? (activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)) : {}">
+                                <div class="card bg-success" [class.pointer]="card && activePlayer == activePlayer"
+                                    [ngStyle]=showAsSelected(card)>
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t3gems.png" alt="t3">
                                     <div class="card-img-overlay">
@@ -230,8 +232,9 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT2Showing(); let i = index">
                             <div class="col-sm-2"
-                                (click)="activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)">
-                                <div class="card bg-warning" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
+                                (click)="activePlayer == activePlayer ? (activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)) : {}">
+                                <div class="card bg-warning" [class.pointer]="card && activePlayer == activePlayer"
+                                    [ngStyle]=showAsSelected(card)>
                                     <img class="card-img"
                                         style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                                         src="../../../assets/t2gems.svg" alt="t2">
@@ -279,8 +282,9 @@
                         </div>
                         <ng-container *ngFor="let card of gameService.getT1Showing(); let i = index">
                             <div class="col-sm-2"
-                                (click)="activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)">
-                                <div class="card bg-primary" [class.pointer]="card" [ngStyle]=showAsSelected(card)>
+                                (click)="activePlayer == activePlayer ? (activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)) : {}">
+                                <div class="card bg-primary" [class.pointer]="card && activePlayer == activePlayer"
+                                    [ngStyle]=showAsSelected(card)>
                                     <img class="card-img" style="object-fit: cover; height: 15vh; opacity: .85;"
                                         src="../../../assets/t1gem.png" alt="t1">
                                     <div class="card-img-overlay">
@@ -313,8 +317,9 @@
 
                 <div *ngFor="let gem of gemTypes">
 
-                    <div class="card" [ngClass]=getGemColor(gem[0]) [class.pointer]="gem[0] !== 'G'"
-                        (click)="gatherGem(gem)" [ngStyle]=showAsSelected(gem)>
+                    <div class="card" [ngClass]=getGemColor(gem[0])
+                        [class.pointer]="gem[0] !== 'G' && activePlayer == activePlayer"
+                        (click)="activePlayer == activePlayer ? (gatherGem(gem)) : {}" [ngStyle]=showAsSelected(gem)>
                         <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                             src="../../../assets/t1gem.png" alt="{{gem}}">
                         <div class="card-img-overlay">
@@ -362,8 +367,9 @@
                             </div>
                             <div class="col">
                                 <div class="row justify-content-end">
-                                    <div class="text-center pointer text-muted font-weight-light"
-                                        (click)="clearTurnAction()">
+                                    <div class="text-center text-muted font-weight-light"
+                                        [class.pointer]="activePlayer == activePlayer"
+                                        (click)="activePlayer == activePlayer ? (clearTurnAction()) : {}">
                                         Clear &nbsp;
                                     </div>
                                 </div>
@@ -378,8 +384,9 @@
                                 <div class="row">
                                     <div class="col"></div>
                                     <div class="col-8">
-                                        <div class="card pointer" [ngClass]=getGemColor(gem[0])
-                                            (click)="returnGem(gem)">
+                                        <div class="card" [class.pointer]="activePlayer == activePlayer"
+                                            [ngClass]=getGemColor(gem[0])
+                                            (click)="activePlayer == activePlayer ? (returnGem(gem)) : {}">
                                             <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                                                 src="../../../assets/t1gem.png" alt="{{gem}}">
                                             <div class="card-img-overlay">
@@ -405,8 +412,9 @@
                             <div class="row">
                                 <div class="col"></div>
                                 <div class="col-8">
-                                    <div class="card pointer" [ngClass]=getTierCardColor(buyingCard)
-                                        (click)="returnBuyingCard();">
+                                    <div class="card" [class.pointer]="activePlayer == activePlayer"
+                                        [ngClass]=getTierCardColor(buyingCard)
+                                        (click)="activePlayer == activePlayer ? (returnBuyingCard()) : {}">
                                         <img class="card-img"
                                             style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                                             [src]=getTierCardImage(buyingCard.tier) alt="tier{{buyingCard.tier}}">
@@ -449,8 +457,9 @@
                                     <div class="row">
                                         <div class="col"></div>
                                         <div class="col-8">
-                                            <div class="card pointer" [ngClass]=getGemColor(gem[0])
-                                                (click)="returnGoldSpentAsGem(gem)">
+                                            <div class="card" [class.pointer]="activePlayer == activePlayer"
+                                                [ngClass]=getGemColor(gem[0])
+                                                (click)="activePlayer == activePlayer ? (returnGoldSpentAsGem(gem)) : {}">
                                                 <img class="card-img"
                                                     style="object-fit: cover; height: 9vh; opacity: .5;"
                                                     src="../../../assets/t1gem.png" alt="{{gem}}">
@@ -479,8 +488,9 @@
                             <div class="row">
                                 <div class="col"></div>
                                 <div class="col-8">
-                                    <div class="card pointer" [ngClass]=getTierCardColor(reservingCard)
-                                        (click)="returnReservingCard();">
+                                    <div class="card" [class.pointer]="activePlayer == activePlayer"
+                                        [ngClass]=getTierCardColor(reservingCard)
+                                        (click)="activePlayer == activePlayer ? (clearTurnAction()) : {}">
                                         <img class="card-img"
                                             style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
                                             [src]=getTierCardImage(reservingCard.tier) alt="tier{{reservingCard.tier}}">
@@ -523,7 +533,7 @@
                                     <div class="row">
                                         <div class="col"></div>
                                         <div class="col-8">
-                                            <div class="card pointer" [ngClass]=getGemColor(gem[0])>
+                                            <div class="card" [ngClass]=getGemColor(gem[0])>
                                                 <img class="card-img"
                                                     style="object-fit: cover; height: 9vh; opacity: .5;"
                                                     src="../../../assets/t1gem.png" alt="{{gem}}">
@@ -563,7 +573,10 @@
                                 <div class="row">
                                     <div class="col"></div>
                                     <div class="col-8">
-                                        <div class="card pointer" [ngClass]=getGemColor(gem[0])>
+                                        <div class="card"
+                                            [class.pointer]="activePlayer == activePlayer && gem != gemTypes[gemTypes.length - 1]"
+                                            [ngClass]=getGemColor(gem[0])
+                                            (click)="(activePlayer == activePlayer && gem != gemTypes[gemTypes.length - 1]) ? (returnGem(gem)) : {}">
                                             <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                                                 src="../../../assets/t1gem.png" alt="{{gem}}">
                                             <div class="card-img-overlay">
@@ -596,8 +609,9 @@
                                 <div class="row">
                                     <div class="col"></div>
                                     <div class="col-8">
-                                        <div class="card pointer" [ngClass]=getGemColor(gem[0])
-                                            (click)="returnExchangingGem(gem)">
+                                        <div class="card" [class.pointer]="activePlayer == activePlayer"
+                                            [ngClass]=getGemColor(gem[0])
+                                            (click)="activePlayer == activePlayer ? (returnExchangingGem(gem)) : {}">
                                             <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                                                 src="../../../assets/t1gem.png" alt="{{gem}}">
                                             <div class="card-img-overlay">
@@ -640,9 +654,10 @@
                     <div class="col">
                         <!-- Toggle Resource Details -->
                         <div class="row justify-content-end">
-                            <div class="pointer" [class.text-muted]="showBuyingPowerAsTotal"
+                            <div [class.pointer]="activePlayer == activePlayer"
+                                [class.text-muted]="showBuyingPowerAsTotal"
                                 [class.font-weight-light]="showBuyingPowerAsTotal"
-                                (click)="showBuyingPowerAsTotal = !showBuyingPowerAsTotal">
+                                (click)="activePlayer == 0 ? (showBuyingPowerAsTotal = !showBuyingPowerAsTotal) : {}">
                                 Gems ({{getPlayerGemsTotal(0)}}) - Cards ({{getPlayerCardsTotal(0)}}) &nbsp;
                             </div>
                         </div>
@@ -668,8 +683,9 @@
                             <div class="row">
                                 <div class="col"></div>
                                 <div class="col-8">
-                                    <div class="card pointer" [ngClass]=getTierCardColor(card)
-                                        (click)="activePlayerCanAffordCard(card) ? buyCard(card) : showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_RESERVED_CARD)"
+                                    <div class="card" [ngClass]=getTierCardColor(card)
+                                        [class.pointer]="activePlayer == 0"
+                                        (click)="activePlayer == 0 ? (activePlayerCanAffordCard(card) ? buyCard(card) : showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_RESERVED_CARD)) : {}"
                                         [ngStyle]=showAsSelected(card)>
                                         <img class="card-img"
                                             style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
@@ -708,14 +724,14 @@
                     </div>
                     <!-- Player buying power -->
                     <div class="col"
-                        [class.pointer]="turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE || (turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(0, gem) > 0)"
+                        [class.pointer]="activePlayer == 0 ? (turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE || (turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(0, gem) > 0)) : false"
                         *ngFor="let gem of gemTypes">
                         <!-- Gem Title -->
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
                         <!-- Gem display -->
                         <h6 class="text-center" [ngStyle]="getCostColor(gem[0])"
-                            (click)="(turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE) ? exchangeGem(gem) : 
-                        ((turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(0, gem) > 0) ? startSpendingGold() : {})">
+                            (click)="activePlayer == 0 ? ((turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE) ? exchangeGem(gem) : 
+                        ((turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(0, gem) > 0) ? startSpendingGold() : {})) : {}">
                             <!-- total -->
                             <div *ngIf="showBuyingPowerAsTotal">
                                 {{getPlayerBuyingPowerByGemType(0, gem)}}
@@ -734,7 +750,8 @@
             <!-- End Turn -->
             <div class="col">
                 <div class="row justify-content-center">
-                    <button type="button" class="btn btn-light" (click)="endTurn();">
+                    <button type="button" class="btn btn-light"
+                        (click)="activePlayer == activePlayer ? (endTurn()) : {}">
                         End Turn
                     </button>
                 </div>
@@ -769,8 +786,10 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col" *ngFor="let cost of buyingCard.cost | keyvalue">
-                            <div class="card pointer" [ngClass]=getGemColor(cost.key[0])
-                                (click)="spendGoldAsGem(cost.key)" data-dismiss="modal">
+                            <div class="card" [class.pointer]="activePlayer == activePlayer"
+                                [ngClass]=getGemColor(cost.key[0])
+                                (click)="activePlayer == activePlayer ? (spendGoldAsGem(cost.key)) : {}"
+                                data-dismiss="modal">
                                 <img class="card-img" style="object-fit: cover; height: 9vh; opacity: .5;"
                                     src="../../../assets/t1gem.png" alt="{{cost.key}}">
                                 <div class="card-img-overlay">
@@ -791,27 +810,32 @@
             <div class="modal-footer"
                 *ngIf="alertType != ALERT_TYPE_RESERVE && alert != ALERT_CAN_NOT_AFFORD_RESERVED_CARD && alert != ALERT_MUST_TAKE_TURN_ACTION">
                 <!-- Yes button for exchange gems -->
-                <button type="button" class="btn btn-secondary col" (click)="startGemExchange()"
+                <button type="button" class="btn btn-secondary col"
+                    (click)="activePlayer == activePlayer ? (startGemExchange()) : {}"
                     *ngIf="alert == ALERT_MAX_GEMS">Yes</button>
                 <div class="col"></div>
                 <!-- No Button for exchange gems -->
                 <button type="button" class="btn btn-secondary col" data-dismiss="modal" *ngIf="alert == ALERT_MAX_GEMS"
-                    (click)="clearTurnAction()">No</button>
+                    (click)="activePlayer == activePlayer ? (clearTurnAction()) : {}">No</button>
                 <div class="col"></div>
                 <!-- View Turn Action button -->
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="showTurnAction();">View
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                    (click)="activePlayer == activePlayer ? (showTurnAction()) : {}">View
                     Turn Action</button>
             </div>
             <!-- footer for reserve action -->
             <div class="modal-footer" *ngIf="alertType == ALERT_TYPE_RESERVE">
                 <!-- Yes for reserve card initially -->
-                <button type="button" class="btn btn-secondary col" (click)="confirmReserveCard()"
+                <button type="button" class="btn btn-secondary col"
+                    (click)="activePlayer == activePlayer ? (confirmReserveCard()) : {}"
                     *ngIf="alert == ALERT_RESERVE_CARD">Yes</button>
                 <!-- Yes for reserve card if no gold is available -->
-                <button type="button" class="btn btn-secondary col" data-dismiss="modal" (click)="updateReservingCard()"
+                <button type="button" class="btn btn-secondary col" data-dismiss="modal"
+                    (click)="activePlayer == activePlayer ? (updateReservingCard()) : {}"
                     *ngIf="alert == ALERT_NO_GOLD_IN_BANK">Yes</button>
                 <!-- Yes for reserve card if at max gems -->
-                <button type="button" class="btn btn-secondary col" (click)="startExchangeGemForGold()"
+                <button type="button" class="btn btn-secondary col"
+                    (click)="activePlayer == activePlayer ? (startExchangeGemForGold()) : {}"
                     *ngIf="alert == ALERT_RESERVE_WITH_MAX_GEMS">Yes</button>
                 <div class="col"></div>
                 <button type="button" class="btn btn-secondary col" data-dismiss="modal">No</button>
