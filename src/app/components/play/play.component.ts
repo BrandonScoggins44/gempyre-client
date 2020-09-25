@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GemType } from 'src/app/enums/gem-type.enum';
 import { Card } from 'src/app/interfaces/card';
-import { GameService } from "../../services/game.service";
 import { AiService } from "../../services/ai.service";
-import { Player } from 'src/app/classes/player';
-import { isNumber } from '@ng-bootstrap/ng-bootstrap/util/util';
+import { GameService } from "../../services/game.service";
 
 @Component({
   selector: 'app-play',
@@ -23,6 +21,7 @@ export class PlayComponent implements OnInit {
   private ALERT_INVALID_GEM_SELECTION = 'Invalid gem selection. You must gather 3 unique gems, or 2 of the same gem type.'
   private ALERT_OVERLAPPING_ACTIONS = 'Another action is already being performed.'
   private ALERT_GEM_NOT_AVAILABLE = 'Can not gather more of that gem. Not enough are available in the gem bank.'
+  private ALERT_CAN_NOT_GATHER_TWO_OF_SAME_GEM = 'Not enough gems available! There must be 4 or more of a gem type in the bank in order to gather 2 of that gem as an action.'
   private ALERT_CAN_NOT_AFFORD_CARD = 'You do not have enough gems to purchase that card, and you already have the max number of cards reserved.'
   private ALERT_INCORRECT_GEMS_SPENT_ON_CARD = 'The set of gems submitted does not meet the cost requirements of the card being bought.'
   public ALERT_CAN_NOT_AFFORD_RESERVED_CARD = 'You do not have enough gems to purchase that reserved card.'
@@ -530,8 +529,14 @@ export class PlayComponent implements OnInit {
         return
       }
 
-      if (this.gatheredGems.length < 2) {
+      if (this.gatheredGems.length < 1) {
         this.gatheredGems.push(gemType)
+      } else if (this.gatheredGems.length < 2) {
+        if (this.gameService.getBankTokens().get(gemType) < 4 && this.gatheredGems[0] == gemType) {
+          this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_GATHER_TWO_OF_SAME_GEM)
+        } else {
+          this.gatheredGems.push(gemType)
+        }
       } else if (this.gatheredGems.includes(gemType)
         || this.gatheredGems.filter((gem) => { return gem == this.gatheredGems[0] }).length != 1
         || this.gatheredGems.length >= 3) {
