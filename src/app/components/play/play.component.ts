@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Noble } from 'src/app/classes/noble';
+import { Player } from 'src/app/classes/player';
+import { Tier1Card } from 'src/app/classes/tier1-card';
+import { Tier2Card } from 'src/app/classes/tier2-card';
+import { Tier3Card } from 'src/app/classes/tier3-card';
 import { GemType } from 'src/app/enums/gem-type.enum';
 import { Card } from 'src/app/interfaces/card';
 import { AiService } from "../../services/ai.service";
@@ -60,7 +65,7 @@ export class PlayComponent implements OnInit {
   public ACTION_RESERVE_EXCHANGE = 'Reserve and Exchange'
 
   public turnAction: string;
-  private activePlayer: number;
+  public activePlayer: number;
   public showBuyingPowerAsTotal: boolean = true
 
   public gatheredGems: GemType[];
@@ -73,14 +78,16 @@ export class PlayComponent implements OnInit {
   public reservingCardTemp: Card;
   private reservingCardIndexTemp: number;
 
-  constructor(public gameService: GameService, public aiService: AiService) { }
+  // constructor(public gameService: GameService, public aiService: AiService) { }
+
+  constructor(public gameService: GameService) { }
+
+  public aiService: AiService = new AiService(this.gameService, this)
 
   ngOnInit(): void {
     this.alert = this.ALERT_NONE
     this.alertType = this.ALERT_TYPE_NONE
     this.gempyreModalButton = (document.querySelector('#gempyreModalButton') as HTMLElement);
-
-    this.activePlayer = -1
   }
 
   public showGempyreModal(alertType: string, alert: string): void {
@@ -241,12 +248,12 @@ export class PlayComponent implements OnInit {
     }
   }
 
-  private startNewTurn(): void {
+  private async startNewTurn(): Promise<void> {
     console.log('startNewTurn')
-    if (this.activePlayer == -1)
-      this.activePlayer = 0
-    else {
+    if (this.activePlayer != undefined)
       this.activePlayer = this.activePlayer == this.gameService.getNumberOfPlayers() - 1 ? 0 : this.activePlayer + 1
+    else {
+      this.activePlayer = 0
     }
     console.log('player', this.gameService.getPlayers()[this.activePlayer])
     // establish turn variables
@@ -256,9 +263,16 @@ export class PlayComponent implements OnInit {
     this.spendingGold = []
     this.buyingCard = undefined
     this.reservingCard = undefined
+
+    // process ai turn
+    if (this.gameService.getPlayers()[this.activePlayer].isAi) {
+      await this.aiService.processAiTurn()
+      // this.aiService.test()
+      await this.endTurn()
+    }
   }
 
-  private endTurn(): void {
+  public async endTurn(): Promise<void> {
     console.log('endTurn')
 
     // validate turn action
@@ -266,10 +280,14 @@ export class PlayComponent implements OnInit {
       this.implementTurnAction()
       this.checkIfPlayerEarnedNoble()
       if (this.gameService.getPlayers()[this.activePlayer].points >= 25) {
-        this.showGempyreModal(this.ALERT_TYPE_VICTORY, this.gameService.getPlayers()[this.activePlayer].name + this.ALERT_VICTORY + ' (A new game will start automatically for now.)')
+        // temp fix for showing winner and starting new game
+        let winningPlayer = this.gameService.getPlayers()[this.activePlayer].name
+        this.activePlayer = undefined
+
+        this.showGempyreModal(this.ALERT_TYPE_VICTORY, winningPlayer + this.ALERT_VICTORY + ' (A new game will start automatically for now.)')
         this.gameService.buildGame()
       }
-      this.startNewTurn()
+      await this.startNewTurn()
     } else {
       this.showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.alert);
     }
@@ -553,7 +571,7 @@ export class PlayComponent implements OnInit {
     }
   }
 
-  private gemIsAvailable(gemType: GemType): boolean {
+  public gemIsAvailable(gemType: GemType): boolean {
     return this.gameService.getBankTokens().get(gemType) > 0
   }
 
@@ -565,7 +583,7 @@ export class PlayComponent implements OnInit {
     }
   }
 
-  public exchangeGem(gem: GemType): void {
+  public async exchangeGem(gem: GemType): Promise<void> {
     if (this.exchangingGems.length < this.gatheredGems.length) {
       if (this.getPlayerGemsByGemType(this.activePlayer, gem) != undefined && this.getPlayerGemsByGemType(this.activePlayer, gem) > 0) {
         this.exchangingGems.push(gem)
@@ -587,13 +605,15 @@ export class PlayComponent implements OnInit {
     this.exchangingGems.splice(this.exchangingGems.findIndex((gem) => { return gem == returnGem }), 1)
   }
 
-  public startGemExchange(): void {
+  public async startGemExchange(): Promise<void> {
     this.turnAction = this.ACTION_EXCHANGE_GEMS
     this.alertType = this.ALERT_TYPE_EXCHANGE
     this.alert = this.ALERT_EXCHANGE
   }
 
   public buyCard(card: Card, showingIndex?: number): void {
+    console.log('card', card)
+    console.log('index', showingIndex)
     if (card) {
       // check that action is available
       // if (this.turnAction != this.ACTION_NONE && this.turnAction != this.ACTION_BUY_CARD && this.turnAction != this.ACTION_RESERVE_CARD) {     // use this line if we don't want get Overlapping Actions modal between buying and reserving
@@ -823,6 +843,12 @@ export class PlayComponent implements OnInit {
     return this.gameService.getPlayers()[player].buyingPower.get(gem)
   }
 
+  public getPlayerBuyingPowerTotal(player: number): number {
+    let buyingPowerTotal = 0
+    this.gameService.getPlayers()[player].buyingPower.forEach((value) => { buyingPowerTotal += value })
+    return buyingPowerTotal
+  }
+
   public getPlayerCardsTotal(player: number): number {
     let playerCardCount = 0
     for (let gemType of Object.values(GemType)) {
@@ -837,5 +863,56 @@ export class PlayComponent implements OnInit {
       playerGemCount += this.getPlayerGemsByGemType(player, gemType)
     }
     return playerGemCount
+  }
+
+  // game service calls
+  public getGameInProgress(): boolean {
+    return this.gameService.getGameInProgress()
+  }
+
+  public startNewGame(): void {
+    this.gameService.buildGame()
+    this.activePlayer = undefined
+    this.startNewTurn()
+  }
+
+  public getNumberOfPlayers(): number {
+    return this.gameService.getNumberOfPlayers()
+  }
+
+  public getPlayers(): Player[] {
+    return this.gameService.getPlayers()
+  }
+
+  public getNobles(): Noble[] {
+    return this.gameService.getNobles()
+  }
+
+  public getT3Deck(): Tier3Card[] {
+    return this.gameService.getT3Deck()
+  }
+
+  public getT3Showing(): Tier3Card[] {
+    return this.gameService.getT3Showing()
+  }
+
+  public getT2Deck(): Tier2Card[] {
+    return this.gameService.getT2Deck()
+  }
+
+  public getT2Showing(): Tier2Card[] {
+    return this.gameService.getT2Showing()
+  }
+
+  public getT1Deck(): Tier1Card[] {
+    return this.gameService.getT1Deck()
+  }
+
+  public getT1Showing(): Tier1Card[] {
+    return this.gameService.getT1Showing()
+  }
+
+  public getBankTokens(): Map<GemType, number> {
+    return this.gameService.getBankTokens()
   }
 }

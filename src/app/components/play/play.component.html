@@ -1,28 +1,28 @@
 <div class="col">
-    <div class="row justify-content-start" *ngIf="!gameService.getGameInProgress()">
-        <button type="button" class="btn btn-light" (click)="gameService.buildGame(); startNewTurn();">Start New
+    <div class="row justify-content-start" *ngIf="!getGameInProgress()">
+        <button type="button" class="btn btn-light" (click)="startNewGame();">Start New
             Game</button>
     </div>
 
-    <div *ngIf="gameService.getGameInProgress()">
+    <div *ngIf="getGameInProgress()">
 
         <div class="row align-items-center">
             <div class="col">
                 <div class="row justify-content-start">
-                    <button type="button" class="btn btn-light" (click)="gameService.buildGame(); startNewTurn();">Start
+                    <button type="button" class="btn btn-light" (click)="startNewGame();">Start
                         New
                         Game</button>
                 </div>
             </div>
             <!-- Player 2 -->
-            <div class="col-4 bg-light" style="height: 9vh;" *ngIf="gameService.getNumberOfPlayers() >= 2"
+            <div class="col-4 bg-light" style="height: 9vh;" *ngIf="getNumberOfPlayers() >= 2"
                 [ngStyle]="showAsSelected(1)">
                 <div class="row justify-content-around">
                     <div class="col"></div>
                     <div class="col">
                         <!-- Player Name -->
                         <div class="row justify-content-around">
-                            {{gameService.getPlayers()[1].name}} (Computer)
+                            {{getPlayers()[1].name}} (Computer)
                         </div>
                     </div>
                     <div class="col">
@@ -41,7 +41,7 @@
                     <!-- Player points -->
                     <div class="col border-right border-secondary">
                         <h6 class="text-center">Points</h6>
-                        <h6 class="text-center">{{gameService.getPlayers()[1].points}}</h6>
+                        <h6 class="text-center">{{getPlayers()[1].points}}</h6>
                     </div>
 
                     <!-- Held Cards -->
@@ -52,7 +52,7 @@
 
                     <ng-template #popContentReservedCards>
                         <!-- Show Reserved Cards -->
-                        <div *ngFor="let card of gameService.getPlayers()[1].heldCards; let i = index">
+                        <div *ngFor="let card of getPlayers()[1].heldCards; let i = index">
                             <div class="row">
                                 <div class="col"></div>
                                 <div class="col-8">
@@ -84,7 +84,7 @@
                                 </div>
                                 <div class="col"></div>
                             </div>
-                            <br *ngIf="i + 1 < gameService.getPlayers()[1].heldCards.length">
+                            <br *ngIf="i + 1 < getPlayers()[1].heldCards.length">
                         </div>
 
                     </ng-template>
@@ -92,7 +92,7 @@
                     <div class="col border-right border-secondary pointer" id="heldCards" placement="bottom"
                         [ngbPopover]="popContentReservedCards" [popoverTitle]="popTitleReservedCards">
                         <h6 class="text-center">Held</h6>
-                        <h6 class="text-center">{{gameService.getPlayers()[1].heldCards.length}}</h6>
+                        <h6 class="text-center">{{getPlayers()[1].heldCards.length}}</h6>
 
                     </div>
                     <!-- Player buying power -->
@@ -126,17 +126,17 @@
 
         <div class="row">
             <!-- Player 3 -->
-            <div class="col-1 bg-light" *ngIf="gameService.getNumberOfPlayers() >= 3">
-                <div class="row justify-content-around">{{gameService.getPlayers()[2].name}}</div>
+            <div class="col-1 bg-light" *ngIf="getNumberOfPlayers() >= 3">
+                <div class="row justify-content-around">{{getPlayers()[2].name}}</div>
             </div>
 
             <div class="col-1"></div>
 
             <div class="col">
                 <!-- Nobles -->
-                <section class="container" *ngIf="gameService.getNobles() && gameService.getNobles().length > 0">
+                <section class="container" *ngIf="getNobles() && getNobles().length > 0">
                     <div class="row justify-content-around" style="height: 15vh;">
-                        <ng-container *ngFor="let noble of gameService.getNobles()">
+                        <ng-container *ngFor="let noble of getNobles()">
                             <div class="col-sm-2">
                                 <div class="card bg-dark">
                                     <img class="card-img" style="object-fit: cover; height: 15vh;"
@@ -162,7 +162,7 @@
                 </section>
                 <br>
                 <!-- Tier 3 Cards -->
-                <section class="container" *ngIf="gameService.getT3Deck() && gameService.getT3Showing()">
+                <section class="container" *ngIf="getT3Deck() && getT3Showing()">
                     <div class="row justify-content-around" style="height: 15vh;">
                         <div class="col-sm-2">
                             <div class="card bg-success">
@@ -171,7 +171,7 @@
                                 <div class="card-img-overlay">
                                     <div class="d-flex flex-column h-100 justify-content-between">
                                         <div class="row justify-content-around bg-light">
-                                            <h4>{{gameService.getT3Deck().length}}</h4>
+                                            <h4>{{getT3Deck().length}}</h4>
                                         </div>
                                         <div class="row justify-content-around bg-light">
                                             <h4 class="card-text text-center">Tier 3</h4>
@@ -180,7 +180,7 @@
                                 </div>
                             </div>
                         </div>
-                        <ng-container *ngFor="let card of gameService.getT3Showing(); let i = index">
+                        <ng-container *ngFor="let card of getT3Showing(); let i = index">
                             <div class="col-sm-2"
                                 (click)="activePlayer == activePlayer ? (activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)) : {}">
                                 <div class="card bg-success" [class.pointer]="card && activePlayer == activePlayer"
@@ -211,7 +211,7 @@
                 </section>
                 <br>
                 <!-- Tier 2 Cards -->
-                <section class="container" *ngIf="gameService.getT2Deck() && gameService.getT2Showing()">
+                <section class="container" *ngIf="getT2Deck() && getT2Showing()">
                     <div class="row justify-content-around" style="height: 15vh;">
                         <div class="col-sm-2">
                             <div class="card bg-warning">
@@ -221,7 +221,7 @@
                                 <div class="card-img-overlay">
                                     <div class="d-flex flex-column h-100 justify-content-between">
                                         <div class="row justify-content-around bg-light">
-                                            <h4>{{gameService.getT2Deck().length}}</h4>
+                                            <h4>{{getT2Deck().length}}</h4>
                                         </div>
                                         <div class="row justify-content-around bg-light">
                                             <h4 class="card-text text-center">Tier 2</h4>
@@ -230,7 +230,7 @@
                                 </div>
                             </div>
                         </div>
-                        <ng-container *ngFor="let card of gameService.getT2Showing(); let i = index">
+                        <ng-container *ngFor="let card of getT2Showing(); let i = index">
                             <div class="col-sm-2"
                                 (click)="activePlayer == activePlayer ? (activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)) : {}">
                                 <div class="card bg-warning" [class.pointer]="card && activePlayer == activePlayer"
@@ -262,7 +262,7 @@
                 </section>
                 <br>
                 <!-- Tier 1 Cards -->
-                <section class="container" *ngIf="gameService.getT1Deck() && gameService.getT1Showing()">
+                <section class="container" *ngIf="getT1Deck() && getT1Showing()">
                     <div class="row justify-content-around" style="height: 15vh;">
                         <div class="col-sm-2">
                             <div class="card bg-primary">
@@ -271,7 +271,7 @@
                                 <div class="card-img-overlay">
                                     <div class="d-flex flex-column h-100 justify-content-between">
                                         <div class="row justify-content-around bg-light">
-                                            <h4>{{gameService.getT1Deck().length}}</h4>
+                                            <h4>{{getT1Deck().length}}</h4>
                                         </div>
                                         <div class="row justify-content-around bg-light">
                                             <h4 class="card-text text-center">Tier 1</h4>
@@ -280,7 +280,7 @@
                                 </div>
                             </div>
                         </div>
-                        <ng-container *ngFor="let card of gameService.getT1Showing(); let i = index">
+                        <ng-container *ngFor="let card of getT1Showing(); let i = index">
                             <div class="col-sm-2"
                                 (click)="activePlayer == activePlayer ? (activePlayerCanAffordCard(card) ? buyCard(card, i) : reserveCard(card, i)) : {}">
                                 <div class="card bg-primary" [class.pointer]="card && activePlayer == activePlayer"
@@ -326,7 +326,7 @@
                             <div class="d-flex flex-column justify-content-center">
                                 <div class="row justify-content-around bg-light">
                                     <h4 [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h4>
-                                    <h4>{{gameService.getBankTokens().get(gem)}}</h4>
+                                    <h4>{{getBankTokens().get(gem)}}</h4>
                                 </div>
                             </div>
                         </div>
@@ -338,8 +338,8 @@
 
             <div class="col-1"></div>
             <!-- Player 4 -->
-            <div class="col-1 bg-light" *ngIf="gameService.getNumberOfPlayers() >= 4">
-                <div class="row justify-content-around">{{gameService.getPlayers()[3].name}}</div>
+            <div class="col-1 bg-light" *ngIf="getNumberOfPlayers() >= 4">
+                <div class="row justify-content-around">{{getPlayers()[3].name}}</div>
             </div>
         </div>
 
@@ -648,7 +648,7 @@
                     <div class="col">
                         <!-- Player Name -->
                         <div class="row justify-content-around">
-                            {{gameService.getPlayers()[0].name}} (You)
+                            {{getPlayers()[0].name}} (You)
                         </div>
                     </div>
                     <div class="col">
@@ -668,7 +668,7 @@
                     <!-- Player points -->
                     <div class="col border-right border-secondary">
                         <h6 class="text-center">Points</h6>
-                        <h6 class="text-center">{{gameService.getPlayers()[0].points}}</h6>
+                        <h6 class="text-center">{{getPlayers()[0].points}}</h6>
                     </div>
 
                     <!-- Held Cards -->
@@ -679,7 +679,7 @@
 
                     <ng-template #popContentReservedCards>
                         <!-- Show Reserved Cards -->
-                        <div *ngFor="let card of gameService.getPlayers()[0].heldCards; let i = index">
+                        <div *ngFor="let card of getPlayers()[0].heldCards; let i = index">
                             <div class="row">
                                 <div class="col"></div>
                                 <div class="col-8">
@@ -711,7 +711,7 @@
                                 </div>
                                 <div class="col"></div>
                             </div>
-                            <br *ngIf="i + 1 < gameService.getPlayers()[0].heldCards.length">
+                            <br *ngIf="i + 1 < getPlayers()[0].heldCards.length">
                         </div>
 
                     </ng-template>
@@ -719,7 +719,7 @@
                     <div class="col border-right border-secondary pointer" id="heldCards" placement="top"
                         [ngbPopover]="popContentReservedCards" [popoverTitle]="popTitleReservedCards">
                         <h6 class="text-center">Held</h6>
-                        <h6 class="text-center">{{gameService.getPlayers()[0].heldCards.length}}</h6>
+                        <h6 class="text-center">{{getPlayers()[0].heldCards.length}}</h6>
 
                     </div>
                     <!-- Player buying power -->
