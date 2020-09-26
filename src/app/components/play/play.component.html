@@ -124,11 +124,112 @@
         </div>
 
         <br>
-
         <div class="row">
             <!-- Player 3 -->
-            <div class="col-1 bg-light" *ngIf="getNumberOfPlayers() >= 3">
-                <div class="row justify-content-around">{{getPlayers()[2].name}}</div>
+            <div class="col-1 d-flex flex-column bg-light justify-content-between" *ngIf="getNumberOfPlayers() >= 3"
+                [ngStyle]="showAsSelected(2)">
+
+                <div class="row justify-content-center">
+                    {{getPlayers()[2].name}} (Computer)
+                </div>
+
+                <!-- Player points -->
+                <div class="row justify-content-center">
+                    <div class="col"></div>
+                    <div class="col border-bottom border-secondary">
+                        <h6 class="text-center">Points</h6>
+                        <h6 class="text-center">{{getPlayers()[2].points}}</h6>
+                    </div>
+                    <div class="col"></div>
+                </div>
+
+                <!-- Held Cards -->
+                <div class="row justify-content-center">
+                    <ng-template #popTitleReservedCards>
+                        <div class="text-center">Reserved Cards</div>
+                    </ng-template>
+
+                    <ng-template #popContentReservedCards>
+                        <!-- Show Reserved Cards -->
+                        <div *ngFor="let card of getPlayers()[2].heldCards; let i = index">
+                            <div class="row">
+                                <div class="col"></div>
+                                <div class="col-8">
+                                    <div class="card" [ngClass]=getTierCardColor(card)
+                                        [class.pointer]="activePlayer == 2 && !getPlayers()[activePlayer].isAi"
+                                        (click)="(activePlayer == 2 && !getPlayers()[activePlayer].isAi) ? (activePlayerCanAffordCard(card) ? buyCard(card) : showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_RESERVED_CARD)) : {}"
+                                        [ngStyle]=showAsSelected(card)>
+                                        <img class="card-img"
+                                            style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
+                                            [src]=getTierCardImage(card.tier) alt="tier{{card.tier}}">
+                                        <div class="card-img-overlay">
+                                            <div class="d-flex flex-column h-100 justify-content-between" *ngIf="card">
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4>{{card.points}}</h4>
+                                                    <h4>-</h4>
+                                                    <h4 [ngStyle]="getCostColor(card.value[0])">
+                                                        1
+                                                    </h4>
+                                                </div>
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4 class="card-text text-center"
+                                                        [ngStyle]="getCostColor(cardCost.key[0])"
+                                                        *ngFor="let cardCost of card.cost | keyvalue">
+                                                        {{cardCost.value}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col"></div>
+                            </div>
+                            <br *ngIf="i + 1 < getPlayers()[2].heldCards.length">
+                        </div>
+
+                    </ng-template>
+
+                    <div class="col"></div>
+                    <div class="col border-bottom border-secondary pointer" id="heldCards" placement="right"
+                        [ngbPopover]="popContentReservedCards" [popoverTitle]="popTitleReservedCards">
+                        <h6 class="text-center">Held</h6>
+                        <h6 class="text-center">{{getPlayers()[2].heldCards.length}}</h6>
+                    </div>
+                    <div class="col"></div>
+                </div>
+
+                <!-- Player buying power -->
+                <div class="row justify-content-center"
+                    [class.pointer]="(activePlayer == 2 && !getPlayers()[activePlayer].isAi) ? (turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE || (turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(2, gem) > 0)) : false"
+                    *ngFor="let gem of gemTypes">
+                    <div class="col">
+                        <!-- Gem Title -->
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
+                        <!-- Gem display -->
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])"
+                            (click)="(activePlayer == 2 && !getPlayers()[activePlayer].isAi) ? ((turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE) ? exchangeGem(gem) : 
+                    ((turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(2, gem) > 0) ? startSpendingGold() : {})) : {}">
+                            <!-- total -->
+                            <div *ngIf="showBuyingPowerAsTotal">
+                                {{getPlayerBuyingPowerByGemType(2, gem)}}
+                            </div>
+                            <!-- gem - card breakdown -->
+                            <div *ngIf="!showBuyingPowerAsTotal">
+                                {{getPlayerGemsByGemType(2, gem)}} -
+                                {{getPlayerCardsByGemType(2, gem)}}
+                            </div>
+                        </h6>
+                    </div>
+                </div>
+
+                <!-- Toggle Resource Details -->
+                <div class="row justify-content-center">
+                    <div [class.pointer]="activePlayer == 2 && !getPlayers()[activePlayer].isAi"
+                        [class.text-muted]="showBuyingPowerAsTotal" [class.font-weight-light]="showBuyingPowerAsTotal"
+                        (click)="(activePlayer == 2 && !getPlayers()[activePlayer].isAi) ? (showBuyingPowerAsTotal = !showBuyingPowerAsTotal) : {}">
+                        Gems ({{getPlayerGemsTotal(2)}}) - Cards ({{getPlayerCardsTotal(2)}})
+                    </div>
+                </div>
+
             </div>
 
             <div class="col-1"></div>
@@ -339,9 +440,112 @@
 
             <div class="col-1"></div>
             <!-- Player 4 -->
-            <div class="col-1 bg-light" *ngIf="getNumberOfPlayers() >= 4">
-                <div class="row justify-content-around">{{getPlayers()[3].name}}</div>
+            <div class="col-1 d-flex flex-column bg-light justify-content-between" *ngIf="getNumberOfPlayers() >= 4"
+                [ngStyle]="showAsSelected(3)">
+
+                <div class="row justify-content-center">
+                    {{getPlayers()[3].name}} (Computer)
+                </div>
+
+                <!-- Player points -->
+                <div class="row justify-content-center">
+                    <div class="col"></div>
+                    <div class="col border-bottom border-secondary">
+                        <h6 class="text-center">Points</h6>
+                        <h6 class="text-center">{{getPlayers()[3].points}}</h6>
+                    </div>
+                    <div class="col"></div>
+                </div>
+
+                <!-- Held Cards -->
+                <div class="row justify-content-center">
+                    <ng-template #popTitleReservedCards>
+                        <div class="text-center">Reserved Cards</div>
+                    </ng-template>
+
+                    <ng-template #popContentReservedCards>
+                        <!-- Show Reserved Cards -->
+                        <div *ngFor="let card of getPlayers()[3].heldCards; let i = index">
+                            <div class="row">
+                                <div class="col"></div>
+                                <div class="col-8">
+                                    <div class="card" [ngClass]=getTierCardColor(card)
+                                        [class.pointer]="activePlayer == 3 && !getPlayers()[activePlayer].isAi"
+                                        (click)="(activePlayer == 3 && !getPlayers()[activePlayer].isAi) ? (activePlayerCanAffordCard(card) ? buyCard(card) : showGempyreModal(this.ALERT_TYPE_USER_ERROR, this.ALERT_CAN_NOT_AFFORD_RESERVED_CARD)) : {}"
+                                        [ngStyle]=showAsSelected(card)>
+                                        <img class="card-img"
+                                            style="object-fit: cover; height: 15vh; opacity: .85; background-color: white;"
+                                            [src]=getTierCardImage(card.tier) alt="tier{{card.tier}}">
+                                        <div class="card-img-overlay">
+                                            <div class="d-flex flex-column h-100 justify-content-between" *ngIf="card">
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4>{{card.points}}</h4>
+                                                    <h4>-</h4>
+                                                    <h4 [ngStyle]="getCostColor(card.value[0])">
+                                                        1
+                                                    </h4>
+                                                </div>
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4 class="card-text text-center"
+                                                        [ngStyle]="getCostColor(cardCost.key[0])"
+                                                        *ngFor="let cardCost of card.cost | keyvalue">
+                                                        {{cardCost.value}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col"></div>
+                            </div>
+                            <br *ngIf="i + 1 < getPlayers()[3].heldCards.length">
+                        </div>
+
+                    </ng-template>
+
+                    <div class="col"></div>
+                    <div class="col border-bottom border-secondary pointer" id="heldCards" placement="left"
+                        [ngbPopover]="popContentReservedCards" [popoverTitle]="popTitleReservedCards">
+                        <h6 class="text-center">Held</h6>
+                        <h6 class="text-center">{{getPlayers()[3].heldCards.length}}</h6>
+                    </div>
+                    <div class="col"></div>
+                </div>
+
+                <!-- Player buying power -->
+                <div class="row justify-content-center"
+                    [class.pointer]="(activePlayer == 3 && !getPlayers()[activePlayer].isAi) ? (turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE || (turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(3, gem) > 0)) : false"
+                    *ngFor="let gem of gemTypes">
+                    <div class="col">
+                        <!-- Gem Title -->
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])">{{gem.substring(0, 3)}}</h6>
+                        <!-- Gem display -->
+                        <h6 class="text-center" [ngStyle]="getCostColor(gem[0])"
+                            (click)="(activePlayer == 3 && !getPlayers()[activePlayer].isAi) ? ((turnAction == ACTION_EXCHANGE_GEMS || turnAction == ACTION_RESERVE_EXCHANGE) ? exchangeGem(gem) : 
+                    ((turnAction == ACTION_BUY_CARD && gem == gemTypes[gemTypes.length - 1] && getPlayerGemsByGemType(3, gem) > 0) ? startSpendingGold() : {})) : {}">
+                            <!-- total -->
+                            <div *ngIf="showBuyingPowerAsTotal">
+                                {{getPlayerBuyingPowerByGemType(3, gem)}}
+                            </div>
+                            <!-- gem - card breakdown -->
+                            <div *ngIf="!showBuyingPowerAsTotal">
+                                {{getPlayerGemsByGemType(3, gem)}} -
+                                {{getPlayerCardsByGemType(3, gem)}}
+                            </div>
+                        </h6>
+                    </div>
+                </div>
+
+                <!-- Toggle Resource Details -->
+                <div class="row justify-content-center">
+                    <div [class.pointer]="activePlayer == 3 && !getPlayers()[activePlayer].isAi"
+                        [class.text-muted]="showBuyingPowerAsTotal" [class.font-weight-light]="showBuyingPowerAsTotal"
+                        (click)="(activePlayer == 3 && !getPlayers()[activePlayer].isAi) ? (showBuyingPowerAsTotal = !showBuyingPowerAsTotal) : {}">
+                        Gems ({{getPlayerGemsTotal(3)}}) - Cards ({{getPlayerCardsTotal(3)}})
+                    </div>
+                </div>
+
             </div>
+
         </div>
 
         <br>
@@ -635,7 +839,7 @@
                     </ng-template>
 
                     <button type="button" class="btn btn-light" id="turnActionButton" placement="top"
-                        [ngbPopover]="popContent" [popoverTitle]="popTitle" [autoClose]="false" (click)="p.toggle()">
+                        [ngbPopover]="popContent" [popoverTitle]="popTitle" [autoClose]="false" (click)="p != undefined ? p.toggle() : {}">
                         Turn Action
                     </button>
 

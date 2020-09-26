@@ -23,7 +23,7 @@ export class GameService {
   private t1Showing: Tier1Card[];
 
   private bankTokens: Map<GemType, number>;
-  private numberOfPlayers: number = 2;
+  private numberOfPlayers: number = 4;
   private players: Player[];
 
   private gameInProgress: boolean = false;
