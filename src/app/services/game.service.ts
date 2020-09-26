@@ -45,8 +45,8 @@ export class GameService {
     this.t2Showing = []
     this.t3Showing = []
 
-    this.generateTierCards(this.t3Deck, this.t3Showing, 2, 3, 6, 7, 2, 3, 0)
-    this.generateTierCards(this.t2Deck, this.t2Showing, 4, 2, 4, 5, 2, 1, 0)
+    this.generateTierCards(this.t3Deck, this.t3Showing, 2, 3, 3, 8, 2, 3, 0)
+    this.generateTierCards(this.t2Deck, this.t2Showing, 4, 2, 3, 5, 2, 1, 0)
     this.generateTierCards(this.t1Deck, this.t1Showing, 6, 1, 2, 3, 1, 0, .25)
   }
 
@@ -115,7 +115,7 @@ export class GameService {
         let cost: Map<GemType, number> = new Map<GemType, number>();                                                // clear cost for new card
 
         let id = i * availableTypes.length + j;                                                                     // dynamic sequential id
-        let value = GemType[availableTypes[j]];                                                 // gem value. Each card is worth 1 type of gem
+        let value = GemType[availableTypes[j]];                                                                     // gem value. Each card is worth 1 type of gem
         this.generateCost(cost, Math.floor(Math.random() * costRange) + costMin);                                   // generate cost with random value
         let points = Math.floor((Math.random() + pointModifier) * pointRange) + pointMin;                           // randomize points
 
