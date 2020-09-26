@@ -97,7 +97,7 @@ export class AiService {
     let count = 1
     while (gemsToExchange.length < 3 - (10 - (this.playComponent.getPlayerGemsTotal(this.playComponent.activePlayer)))) {
       for (let gem of Object.values(GemType).slice(0, Object.values(GemType).length - 1)) {
-        if (this.playComponent.getPlayerGemsByGemType(this.playComponent.activePlayer, gem) < count && !gemsToExchange.includes(gem)) {
+        if (this.playComponent.getPlayerGemsByGemType(this.playComponent.activePlayer, gem) != 0 && this.playComponent.getPlayerGemsByGemType(this.playComponent.activePlayer, gem) < count && !gemsToExchange.includes(gem)) {
           gemsToExchange.push(gem)
           count--
           break
@@ -107,15 +107,20 @@ export class AiService {
     }
 
     count = 1
+    for (let gem of Object.values(GemType).slice(0, Object.values(GemType).length - 1)) {
+      if (this.playComponent.getPlayerBuyingPowerByGemType(this.playComponent.activePlayer, gem) > count)
+        count = this.playComponent.getPlayerBuyingPowerByGemType(this.playComponent.activePlayer, gem)
+    }
+    count--
     while (gemsToGather.length < 3) {
       for (let gem of Object.values(GemType).slice(0, Object.values(GemType).length - 1)) {
-        if (this.playComponent.getPlayerBuyingPowerByGemType(this.playComponent.activePlayer, gem) < count && this.playComponent.gemIsAvailable(gem) && !gemsToGather.includes(gem)) {
+        if (this.playComponent.getPlayerBuyingPowerByGemType(this.playComponent.activePlayer, gem) > count && this.playComponent.gemIsAvailable(gem) && !gemsToGather.includes(gem)) {
           gemsToGather.push(gem)
-          count--
+          count++
           break
         }
       }
-      count++
+      count--
     }
     await this.playComponent.startGemExchange()
     await this.gatherGems(gemsToGather)

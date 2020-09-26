@@ -66,6 +66,7 @@ export class PlayComponent implements OnInit {
 
   public turnAction: string;
   public activePlayer: number;
+  public playerId: number;
   public showBuyingPowerAsTotal: boolean = true
 
   public gatheredGems: GemType[];
@@ -874,6 +875,7 @@ export class PlayComponent implements OnInit {
   public startNewGame(): void {
     this.gameService.buildGame()
     this.activePlayer = undefined
+    this.playerId = 0
     this.startNewTurn()
   }
 
