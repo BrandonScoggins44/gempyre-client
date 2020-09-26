@@ -635,7 +635,7 @@
                     </ng-template>
 
                     <button type="button" class="btn btn-light" id="turnActionButton" placement="top"
-                        [ngbPopover]="popContent" [popoverTitle]="popTitle">
+                        [ngbPopover]="popContent" [popoverTitle]="popTitle" [autoClose]="false" (click)="p.toggle()">
                         Turn Action
                     </button>
 
