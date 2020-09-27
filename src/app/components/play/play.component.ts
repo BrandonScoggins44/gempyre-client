@@ -18,6 +18,7 @@ export class PlayComponent implements OnInit {
 
   public gemTypes = Object.values(GemType)
   private gempyreModalButton: HTMLElement;
+  private gempyreStaticModalButton: HTMLElement;
 
   // Move to alert enum
   private ALERT_NONE = undefined;
@@ -83,6 +84,8 @@ export class PlayComponent implements OnInit {
   public reservingCardTemp: Card;
   private reservingCardIndexTemp: number;
 
+  public wonNoble: Noble = undefined
+
   // constructor(public gameService: GameService, public aiService: AiService) { }
 
   constructor(public gameService: GameService) { }
@@ -93,12 +96,19 @@ export class PlayComponent implements OnInit {
     this.alert = this.ALERT_NONE
     this.alertType = this.ALERT_TYPE_NONE
     this.gempyreModalButton = (document.querySelector('#gempyreModalButton') as HTMLElement);
+    this.gempyreStaticModalButton = (document.querySelector('#gempyreStaticModalButton') as HTMLElement);
   }
 
   public showGempyreModal(alertType: string, alert: string): void {
     this.alertType = alertType;
     this.alert = alert;
     this.gempyreModalButton.click();
+  }
+
+  public showStaticGempyreModal(alertType: string, alert: string): void {
+    this.alertType = alertType;
+    this.alert = alert;
+    this.gempyreStaticModalButton.click();
   }
 
   public showTurnAction(): void {
@@ -127,6 +137,19 @@ export class PlayComponent implements OnInit {
 
   private instanceOfGemType(obj: any): obj is GemType {
     return Object.values(GemType).includes(obj)
+  }
+
+  public staticBackdrop(): string {
+    console.log('staticBackdrop')
+    switch (this.alertType) {
+      case this.ALERT_TYPE_NEW_GAME:
+      case this.ALERT_TYPE_VICTORY: {
+        return 'static'
+      }
+      default: {
+        return 'true'
+      }
+    }
   }
 
   public getCostColor(leadingChar: string) {
@@ -284,13 +307,13 @@ export class PlayComponent implements OnInit {
     if (this.validateTurnAction()) {
       this.implementTurnAction()
       this.checkIfPlayerEarnedNoble()
-      if (this.gameService.getPlayers()[this.activePlayer].points >= 25) {
+      if (this.gameService.getPlayers()[this.activePlayer].points >= 1) {
         // temp fix for showing winner and starting new game
-        let winningPlayer = this.gameService.getPlayers()[this.activePlayer].name
-        this.activePlayer = undefined
+        // let winningPlayer = this.gameService.getPlayers()[this.activePlayer].name
+        // this.activePlayer = undefined
 
-        this.showGempyreModal(this.ALERT_TYPE_VICTORY, winningPlayer + this.ALERT_VICTORY + ' (A new game will start automatically for now.)')
-        this.gameService.buildGame()
+        this.showStaticGempyreModal(this.ALERT_TYPE_VICTORY, this.gameService.getPlayers()[this.activePlayer].name + this.ALERT_VICTORY)
+        return
       }
       await this.startNewTurn()
     } else {
@@ -527,6 +550,7 @@ export class PlayComponent implements OnInit {
           }
 
           if (requirementsMet) {
+            this.wonNoble = noble
             this.gameService.getPlayers()[this.activePlayer].points += 3
             console.log('player', this.activePlayer + 1, 'earned a noble!')
             this.gameService.getNobles()[this.gameService.getNobles().findIndex((targetNoble) => { return targetNoble == noble })] = undefined
@@ -877,7 +901,14 @@ export class PlayComponent implements OnInit {
   }
 
   public selectNumberOfPlayers(): void {
-    this.showGempyreModal(this.ALERT_TYPE_NEW_GAME, this.ALERT_NUMBER_OF_PLAYERS)
+    if (this.alertType != this.ALERT_TYPE_VICTORY) {
+      console.log('click')
+      this.showStaticGempyreModal(this.ALERT_TYPE_NEW_GAME, this.ALERT_NUMBER_OF_PLAYERS)
+    } else {
+      console.log('no click')
+      this.alertType = this.ALERT_TYPE_NEW_GAME
+      this.alert = this.ALERT_NUMBER_OF_PLAYERS
+    }
   }
 
   public startNewGame(): void {

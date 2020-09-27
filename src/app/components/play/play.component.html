@@ -972,11 +972,11 @@
     </div>
 </div>
 
-<!-- Button trigger modal -->
+<!-- Button trigger for dismisable modal -->
 <button type="button" id="gempyreModalButton" class="btn" data-toggle="modal" data-target="#gempyreModal"
     style="display: none;"></button>
 
-<!-- Modal -->
+<!-- Dismisable Modal -->
 <div class="modal fade" [ngStyle]="getModalBackdropColor()" id="gempyreModal" tabindex="-1"
     aria-labelledby="gempyreModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -991,6 +991,7 @@
             <div class="modal-body">
                 {{alert}}
             </div>
+
             <!-- footer spending gold -->
             <div class="modal-footer"
                 *ngIf="alertType == ALERT_TYPE_EXCHANGE && alert == ALERT_SPEND_GOLD && turnAction == ACTION_BUY_CARD">
@@ -1018,6 +1019,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- footer for non-reserve actions -->
             <div class="modal-footer"
                 *ngIf="alertType != ALERT_TYPE_NEW_GAME && alertType != ALERT_TYPE_RESERVE && alert != ALERT_CAN_NOT_AFFORD_RESERVED_CARD && alert != ALERT_MUST_TAKE_TURN_ACTION">
@@ -1032,9 +1034,45 @@
                 <div class="col"></div>
                 <!-- View Turn Action button -->
                 <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                    *ngIf="alertType != ALERT_TYPE_VICTORY && alertType != ALERT_TYPE_NOBLE"
                     (click)="activePlayer == playerId ? (showTurnAction()) : {}">View
                     Turn Action</button>
+                <!-- Start new game if victory button -->
+                <button type="button" class="btn btn-secondary" *ngIf="alertType == ALERT_TYPE_VICTORY"
+                    data-dismiss="modal" (click)="selectNumberOfPlayers()">Start New Game</button>
+                <!-- Show noble if won -->
+                <div class="container-fluid" *ngIf="alertType == ALERT_TYPE_NOBLE">
+                    <div class="row">
+                        <div class="col"></div>
+                        <div class="col">
+                            <section class="container" *ngIf="wonNoble">
+                                <div class="row justify-content-around" style="height: 15vh;">
+                                    <div class="card bg-dark">
+                                        <img class="card-img" style="object-fit: cover; height: 15vh;"
+                                            src="../../../assets/noble.jpg" alt="noble">
+                                        <div class="card-img-overlay">
+                                            <div class="d-flex flex-column h-100 justify-content-between"
+                                                *ngIf="wonNoble">
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4 class="card-text">{{wonNoble.points}}</h4>
+                                                </div>
+                                                <div class="row justify-content-around bg-light">
+                                                    <h4 class="card-text text-center"
+                                                        [ngStyle]="getCostColor(nobleCost.key[0])"
+                                                        *ngFor="let nobleCost of wonNoble.cost | keyvalue">
+                                                        {{nobleCost.value}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="col"></div>
+                    </div>
+                </div>
             </div>
+
             <!-- footer for reserve action -->
             <div class="modal-footer" *ngIf="alertType == ALERT_TYPE_RESERVE">
                 <!-- Yes for reserve card initially -->
@@ -1052,6 +1090,91 @@
                 <div class="col"></div>
                 <button type="button" class="btn btn-secondary col" data-dismiss="modal">No</button>
             </div>
+
+            <!-- footer for selecting players for new game -->
+            <div class="modal-footer" *ngIf="alertType == ALERT_TYPE_NEW_GAME">
+
+                <div class="container-fluid">
+                    <div class="row justify-content-between">
+                        <div class="col">
+                            <div class="row justify-content-left">
+                                <div class="align-self-center">
+                                    Number Of Players: &nbsp;
+                                </div>
+                                <!-- Dropdown to select number of players -->
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                        id="selectNumberOfPlayersDropdownButton" data-toggle="dropdown"
+                                        aria-haspopup="true" aria-expanded="false">
+                                        {{numberOfPlayersForNewGame}}
+                                    </button>
+                                    <div class="dropdown-menu bg-transparent" style="border: none;"
+                                        aria-labelledby="selectNumberOfPlayersDropdownButton">
+                                        <div class="list-group-item list-group-item-action list-group-item-light w-25 pointer"
+                                            [class.active]="numberOfPlayersForNewGame == 2"
+                                            (click)="numberOfPlayersForNewGame = 2">
+                                            <div class="row justify-content-center">
+                                                2
+                                            </div>
+                                        </div>
+                                        <div class="list-group-item list-group-item-action list-group-item-light w-25 pointer"
+                                            [class.active]="numberOfPlayersForNewGame == 3"
+                                            (click)="numberOfPlayersForNewGame = 3">
+                                            <div class="row justify-content-center">
+                                                3
+                                            </div>
+                                        </div>
+                                        <div class="list-group-item list-group-item-action list-group-item-light w-25 pointer"
+                                            [class.active]="numberOfPlayersForNewGame == 4"
+                                            (click)="numberOfPlayersForNewGame = 4">
+                                            <div class="row justify-content-center">
+                                                4
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-secondary col" data-dismiss="modal"
+                                (click)="startNewGame()">
+                                Start new game
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Button trigger for staic modal -->
+<button type="button" id="gempyreStaticModalButton" class="btn" data-toggle="modal" data-target="#gempyreStaticModal"
+    style="display: none;"></button>
+
+<!-- Static Modal -->
+<div class="modal fade" [ngStyle]="getModalBackdropColor()" id="gempyreStaticModal" tabindex="-1"
+    aria-labelledby="gempyreStaticModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gempyreStaticModalLabel">{{alertType}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                {{alert}}
+            </div>
+
+            <!-- footer for non-reserve actions -->
+            <div class="modal-footer" *ngIf="alertType == ALERT_TYPE_VICTORY">
+                <!-- Start new game if victory button -->
+                <button type="button" class="btn btn-secondary"
+                    (click)="selectNumberOfPlayers()">Start New Game</button>
+            </div>
+
             <!-- footer for selecting players for new game -->
             <div class="modal-footer" *ngIf="alertType == ALERT_TYPE_NEW_GAME">
 
