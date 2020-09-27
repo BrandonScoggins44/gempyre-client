@@ -41,6 +41,7 @@ export class PlayComponent implements OnInit {
   public ALERT_BAD_EXCHANGE = 'You can only exchange up to the number of gems gained. The difference must not cause you to exceed 10 gems.'
   private ALERT_EXCHANGE_CRITERIA_NOT_MET = 'You can only exchange gems if gathering gems would cause you to exceed 10 gems. You must have a total of 10 gems after the exchange.'
   public ALERT_SPEND_GOLD = 'Select the type of gem you wish to spend your gold as from the choices below.'
+  public ALERT_NUMBER_OF_PLAYERS = 'Select the number of computer opponents you would like to play against from the drop down below.'
 
   public alert: string;
 
@@ -53,6 +54,7 @@ export class PlayComponent implements OnInit {
   public ALERT_TYPE_RESERVE = 'Reserve A Card'
   public ALERT_TYPE_EXCHANGE = 'Exchange Gems'
   public ALERT_TYPE_SPEND_GOLD = 'Spend Gold'
+  public ALERT_TYPE_NEW_GAME = 'New Game'
 
   public alertType: string;
 
@@ -63,6 +65,8 @@ export class PlayComponent implements OnInit {
   public ACTION_BUY_CARD = 'Buy Card'
   public ACTION_RESERVE_CARD = 'Reserve Card'
   public ACTION_RESERVE_EXCHANGE = 'Reserve and Exchange'
+
+  public numberOfPlayersForNewGame: number = 2;
 
   public turnAction: string;
   public activePlayer: number;
@@ -872,7 +876,12 @@ export class PlayComponent implements OnInit {
     return this.gameService.getGameInProgress()
   }
 
+  public selectNumberOfPlayers(): void {
+    this.showGempyreModal(this.ALERT_TYPE_NEW_GAME, this.ALERT_NUMBER_OF_PLAYERS)
+  }
+
   public startNewGame(): void {
+    this.gameService.setNumberOfPlayers(this.numberOfPlayersForNewGame)
     this.gameService.buildGame()
     this.activePlayer = undefined
     this.playerId = 0
