@@ -11,7 +11,8 @@ export class UserService {
   private gempyreUserURL: string
 
   constructor(private http: HttpClient) {
-    this.gempyreUserURL = 'http://gempyre-user.herokuapp.com/users'
+    this.gempyreUserURL = 'https://gempyre-user.herokuapp.com/users'
+    // this.gempyreUserURL = 'http://localhost:8080/users'
   }
 
   public findAll(): Observable<User[]> {
