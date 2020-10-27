@@ -307,7 +307,7 @@ export class PlayComponent implements OnInit {
     if (this.validateTurnAction()) {
       this.implementTurnAction()
       this.checkIfPlayerEarnedNoble()
-      if (this.gameService.getPlayers()[this.activePlayer].points >= 1) {
+      if (this.gameService.getPlayers()[this.activePlayer].points >= 15) {
         // temp fix for showing winner and starting new game
         // let winningPlayer = this.gameService.getPlayers()[this.activePlayer].name
         // this.activePlayer = undefined
